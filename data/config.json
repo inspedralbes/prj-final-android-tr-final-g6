@@ -1,0 +1,13 @@
+{
+    "brilloInicial": 50,
+    "nivelesBrillo": [0, 10, 50, 150, 255],
+    "ldrThreshold": 1000,
+    "displayRotation": 0,
+    "fractalDelay": 5000,
+    "logoDelay": 15000,
+    "logoList": ["/logo1.jpg", "/logo2.jpg", "/piola.jpg"],
+    "mostrarFractales": true,
+
+    "wifi_ssid": "winewithcola",
+    "wifi_password": "siquetieneswifi"
+}  

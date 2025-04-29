@@ -11,7 +11,7 @@ namespace wifi {
             return false;
         }
 
-        File configFile = SPIFFS.open("/wifi_config.json", "r");
+        File configFile = SPIFFS.open("/config.json", "r");
         if (!configFile) {
             Serial.println("❌ No se pudo abrir el archivo Wi-Fi.");
             return false;
@@ -35,13 +35,13 @@ namespace wifi {
         }
 
         // Extraer SSID y contraseña
-        if (!doc.containsKey("ssid") || !doc.containsKey("password")) {
+        if (!doc.containsKey("wifi_ssid") || !doc.containsKey("wifi_password")) {
             Serial.println("❌ El archivo JSON no contiene las claves necesarias.");
             return false;
         }
 
-        config.ssid = doc["ssid"].as<String>();
-        config.password = doc["password"].as<String>();
+        config.ssid = doc["wifi_ssid"].as<String>();
+        config.password = doc["wifi_password"].as<String>();
 
         Serial.println("✅ Configuración Wi-Fi cargada:");
         Serial.println("SSID: " + config.ssid);
