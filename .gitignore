@@ -1,0 +1,17 @@
+# PlatformIO
+.pio/
+.pioenvs/
+.piolibdeps/
+.piopm/
+.env
+
+# Build files
+build/
+
+# IDE/Editor
+.vscode/
+.idea/
+
+# Sistema
+*.swp
+*.bak

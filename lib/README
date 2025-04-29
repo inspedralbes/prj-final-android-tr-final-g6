@@ -1,5 +1,6 @@
-### Project Name: HUB75-LED-Matrix-Demos | ESP32/ESP8266 & P3-64x64
-## Description:
+
+Project Name: HUB75-LED-Matrix-Demos | ESP32/ESP8266 & P3-64x64
+Description:
 A PlatformIO project demonstrating core functionalities for driving a 64x64 HUB75 LED matrix (P3 panel). Key objectives:
 
 🎮 HUB75 Protocol Implementation: Control LED matrices via the HUB75 communication bus for dynamic visual outputs.
@@ -14,7 +15,6 @@ Key Features:
 ✅ Mandelbrot fractal generation with customizable parameters
 ✅ PlatformIO-ready structure for easy compilation/flashing
 ✅ Example code and wiring diagrams
-
 
 Bon inici del projecte "SEMÀFOR INTEL·LIGENT PER A LA GESTIÓ DEL SOROLL EN AULES"
 Espero que amb això es podrà començar a fer vía.
