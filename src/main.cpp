@@ -6,22 +6,16 @@
 #include "modules/wifi/wifi.h"
 #include <WiFi.h>
 #include "pins.h"
-#include "config.h"
+#include "modules/config/config.h"
+#include "modules/temperature/temperature.h"
+#include "modules/ldr/ldr.h"
 
 #define ESP32_LED_BUILTIN 2
 
 MatrixPanel_I2S_DMA *dma_display = nullptr;
-const char *logos[] = {"/logo1.jpg", "/logo2.jpg", "/no.jpg", "/piola.jpg"};
 bool connected = false;
 int currentLogo = 0;
 unsigned long lastChangeTime = 0;
-bool showFractals = false;
-int fractalIndex = 0;
-
-const int LDR = Pines::LDR;
-
-int indiceBrillo = 0;
-bool cambioDetectado = false;
 
 bool tjpgDrawCallback(int16_t x, int16_t y, uint16_t w, uint16_t h, uint16_t *bitmap) {
     if (y >= 64) return false;
@@ -53,12 +47,15 @@ void displaySetup(uint8_t displayBright, uint8_t displayRotation) {
     dma_display->begin();
     dma_display->setBrightness8(displayBright);
     dma_display->clearScreen();
-    dma_display->setRotation(displayRotation);
+    dma_display->setRotation(config::displayRotation);
 }
 
-void mostrarImagen(const char *filename) {
-    if (!SPIFFS.exists(filename)) return;
-    File file = SPIFFS.open(filename, "r");
+void showImage(const char *filename) {
+    Serial.printf("Mostrant imatge: %s\n", filename);
+    String fullPath = String("/config::images/") + filename;
+    Serial.printf("Mostrant imatge: %s\n", fullPath);
+    if (!SPIFFS.exists(fullPath)) return;
+    File file = SPIFFS.open(fullPath, "r");
     if (!file) return;
     TJpgDec.drawFsJpg(0, 0, filename);
     file.close();
@@ -66,70 +63,52 @@ void mostrarImagen(const char *filename) {
 
 void setup() {
     Serial.begin(115200);
-    pinMode(LDR, INPUT);
     pinMode(ESP32_LED_BUILTIN, OUTPUT);
 
     SPIFFS.begin(true);
+    config::cargarConfig();
 
-    cargarConfig();
+    Serial.println("Llista d'imatges disponibles:");
+    for (int i = 0; i < sizeof(config::images) / sizeof(config::images[0]); i++) {
+        Serial.println(config::images[i]);
+    }
 
-    displaySetup(brilloInicial, displayRotation);
+    displaySetup(config::startglow, config::displayRotation);
 
     TJpgDec.setJpgScale(1);
     TJpgDec.setCallback(tjpgDrawCallback);
 
-    mostrarImagen(logos[currentLogo]);
+    showImage(config::images[currentLogo]);
+
+    ldr::setup();
 
     connected = wifi::connectToWiFi();
 
     if (connected) {
-        mostrarImagen("/piola.jpg");
+        showImage(config::images[1]);
         delay(5000);
     } else {
-        mostrarImagen("/no.jpg");
+        showImage(config::images[2]);
         delay(5000);
     }
 
-    mostrarImagen(logos[currentLogo]);
+    showImage(config::images[currentLogo]);
     lastChangeTime = millis();
 }
 
 void loop() {
-    int ldrValue = analogRead(LDR);
-    static bool esperaCambio = false;
-
-    if (ldrValue == 0 && !cambioDetectado && !esperaCambio) {
-        cambioDetectado = true;
-        esperaCambio = true;
-        indiceBrillo = (indiceBrillo + 1) % numNiveles;
-        dma_display->setBrightness8(nivelesBrillo[indiceBrillo]);
+    if (ldr::checkChange()) {
+        dma_display->setBrightness8(ldr::getBrightnessLevel());
     }
 
-    if (ldrValue > ldrThreshold) {
-        cambioDetectado = false;
-        esperaCambio = false;
-    }
+    float temperature = temperature::readTemperatureSensor();
+    // Serial.print("Temperatura: ");
+    // Serial.println(temperature, 2);
 
-    if (!showFractals) {
-        if (millis() - lastChangeTime >= logoDelay) {
-            currentLogo = (currentLogo + 1) % 2;
-            dma_display->clearScreen();
-            mostrarImagen(logos[currentLogo]);
-            lastChangeTime = millis();
-
-            if (currentLogo == 1 && mostrarFractales) {
-                showFractals = true;
-                fractalIndex = 0;
-            }
-        }
-    } else {
+    if (millis() - lastChangeTime >= config::logoDelay) {
+        currentLogo = (currentLogo + 1) % 2;
         dma_display->clearScreen();
-        dma_display->setTextSize(1);
-        dma_display->setTextColor(dma_display->color565(255, 255, 255));
-        dma_display->setCursor(10, 28);
-        String macAddress = WiFi.macAddress();
-        dma_display->print(macAddress);
-        delay(fractalDelay);
-        showFractals = false;
+        showImage(config::images[currentLogo]);
+        lastChangeTime = millis();
     }
 }
