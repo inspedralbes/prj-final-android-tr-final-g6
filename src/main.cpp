@@ -9,6 +9,7 @@
 #include "modules/config/config.h"
 #include "modules/temperature/temperature.h"
 #include "modules/ldr/ldr.h"
+#include "modules/sound/sound.h"
 
 #define ESP32_LED_BUILTIN 2
 
@@ -52,12 +53,21 @@ void displaySetup(uint8_t displayBright, uint8_t displayRotation) {
 
 void showImage(const char *filename) {
     Serial.printf("Mostrant imatge: %s\n", filename);
-    String fullPath = String("/config::images/") + filename;
-    Serial.printf("Mostrant imatge: %s\n", fullPath);
-    if (!SPIFFS.exists(fullPath)) return;
+
+    Serial.println();
+
+    String fullPath = String("/images/") + filename;
+    Serial.printf("Ruta completa: %s\n", fullPath.c_str());
+    if (!SPIFFS.exists(fullPath)) {
+        Serial.println("El archivo no existe.");
+        return;
+    }
     File file = SPIFFS.open(fullPath, "r");
-    if (!file) return;
-    TJpgDec.drawFsJpg(0, 0, filename);
+    if (!file) {
+        Serial.println("No se pudo abrir el archivo.");
+        return;
+    }
+    TJpgDec.drawFsJpg(0, 0, fullPath.c_str());
     file.close();
 }
 
@@ -68,47 +78,57 @@ void setup() {
     SPIFFS.begin(true);
     config::cargarConfig();
 
-    Serial.println("Llista d'imatges disponibles:");
-    for (int i = 0; i < sizeof(config::images) / sizeof(config::images[0]); i++) {
-        Serial.println(config::images[i]);
-    }
-
     displaySetup(config::startglow, config::displayRotation);
 
     TJpgDec.setJpgScale(1);
     TJpgDec.setCallback(tjpgDrawCallback);
 
-    showImage(config::images[currentLogo]);
+    Serial.println("Configuració de la pantalla completada.");
+
+    showImage("logo.jpg");
 
     ldr::setup();
 
     connected = wifi::connectToWiFi();
 
     if (connected) {
-        showImage(config::images[1]);
+        showImage("connected.jpg");
         delay(5000);
     } else {
-        showImage(config::images[2]);
+        showImage("disconnected.jpg");
         delay(5000);
     }
 
-    showImage(config::images[currentLogo]);
+    showImage("logo.jpg");
     lastChangeTime = millis();
 }
 
 void loop() {
     if (ldr::checkChange()) {
-        dma_display->setBrightness8(ldr::getBrightnessLevel());
+        // Obtén el nivel de brillo del sensor y actualiza la pantalla
+        uint8_t brightness = ldr::getBrightnessLevel();
+        dma_display->setBrightness8(brightness);
+        Serial.printf("Brillo ajustado a: %d\n", brightness);
     }
 
-    float temperature = temperature::readTemperatureSensor();
-    // Serial.print("Temperatura: ");
-    // Serial.println(temperature, 2);
+    static unsigned long lastActionTime = 0;
+    if (millis() - lastActionTime >= 1000) {
+        lastActionTime = millis();
 
-    if (millis() - lastChangeTime >= config::logoDelay) {
-        currentLogo = (currentLogo + 1) % 2;
-        dma_display->clearScreen();
-        showImage(config::images[currentLogo]);
-        lastChangeTime = millis();
+        // Lee la temperatura (puedes usarla si es necesario)
+        float temperature = temperature::readTemperatureSensor();
+        Serial.printf("Temperatura: %.2f °C\n", temperature);
+
+        // Lee el nivel de sonido y muestra la imagen correspondiente
+        float soundLevel = sound::readSoundDataInDecibels();
+        Serial.printf("Nivell de so: %d\n", soundLevel);
+
+        if (soundLevel < 30) {
+            showImage("good.jpg");
+        } else if (soundLevel < 70) {
+            showImage("normal.jpg");
+        } else {
+            showImage("angry.jpg");
+        }
     }
 }
