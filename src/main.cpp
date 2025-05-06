@@ -7,6 +7,7 @@
 #include <WiFi.h>
 #include "pins.h"
 #include "config.h"
+#include "modules/humidity/humidity.h"
 
 #define ESP32_LED_BUILTIN 2
 
@@ -92,6 +93,8 @@ void setup() {
 
     mostrarImagen(logos[currentLogo]);
     lastChangeTime = millis();
+
+    humidity::init(); // Inicialitza el sensor de humitat
 }
 
 void loop() {
@@ -132,4 +135,14 @@ void loop() {
         delay(fractalDelay);
         showFractals = false;
     }
+
+    float humitat = humidity::readHumidity();
+    if (humitat >= 0) {
+        Serial.print("Humitat: ");
+        Serial.print(humitat);
+        Serial.println("%");
+    } else {
+        Serial.println("Error llegint la humitat.");
+    }
+    delay(2000); // Llegeix cada 2 segons
 }
