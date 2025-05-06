@@ -6,23 +6,18 @@
 #include "modules/wifi/wifi.h"
 #include <WiFi.h>
 #include "pins.h"
-#include "config.h"
+#include "modules/config/config.h"
+#include "modules/temperature/temperature.h"
+#include "modules/ldr/ldr.h"
+#include "modules/sound/sound.h"
 #include "modules/humidity/humidity.h"
 
 #define ESP32_LED_BUILTIN 2
 
 MatrixPanel_I2S_DMA *dma_display = nullptr;
-const char *logos[] = {"/logo1.jpg", "/logo2.jpg", "/no.jpg", "/piola.jpg"};
 bool connected = false;
 int currentLogo = 0;
 unsigned long lastChangeTime = 0;
-bool showFractals = false;
-int fractalIndex = 0;
-
-const int LDR = Pines::LDR;
-
-int indiceBrillo = 0;
-bool cambioDetectado = false;
 
 bool tjpgDrawCallback(int16_t x, int16_t y, uint16_t w, uint16_t h, uint16_t *bitmap) {
     if (y >= 64) return false;
@@ -54,86 +49,90 @@ void displaySetup(uint8_t displayBright, uint8_t displayRotation) {
     dma_display->begin();
     dma_display->setBrightness8(displayBright);
     dma_display->clearScreen();
-    dma_display->setRotation(displayRotation);
+    dma_display->setRotation(config::displayRotation);
 }
 
-void mostrarImagen(const char *filename) {
-    if (!SPIFFS.exists(filename)) return;
-    File file = SPIFFS.open(filename, "r");
-    if (!file) return;
-    TJpgDec.drawFsJpg(0, 0, filename);
+void showImage(const char *filename) {
+    Serial.printf("Mostrant imatge: %s\n", filename);
+
+    Serial.println();
+
+    String fullPath = String("/images/") + filename;
+    Serial.printf("Ruta completa: %s\n", fullPath.c_str());
+    if (!SPIFFS.exists(fullPath)) {
+        Serial.println("El archivo no existe.");
+        return;
+    }
+    File file = SPIFFS.open(fullPath, "r");
+    if (!file) {
+        Serial.println("No se pudo abrir el archivo.");
+        return;
+    }
+    TJpgDec.drawFsJpg(0, 0, fullPath.c_str());
     file.close();
 }
 
 void setup() {
     Serial.begin(115200);
-    pinMode(LDR, INPUT);
     pinMode(ESP32_LED_BUILTIN, OUTPUT);
 
     SPIFFS.begin(true);
+    config::cargarConfig();
 
-    cargarConfig();
-
-    displaySetup(brilloInicial, displayRotation);
+    displaySetup(config::startglow, config::displayRotation);
 
     TJpgDec.setJpgScale(1);
     TJpgDec.setCallback(tjpgDrawCallback);
 
-    mostrarImagen(logos[currentLogo]);
+    Serial.println("Configuració de la pantalla completada.");
+
+    showImage("logo.jpg");
+
+    ldr::setup();
 
     connected = wifi::connectToWiFi();
 
     if (connected) {
-        mostrarImagen("/piola.jpg");
+        showImage("connected.jpg");
         delay(5000);
     } else {
-        mostrarImagen("/no.jpg");
+        showImage("disconnected.jpg");
         delay(5000);
     }
 
-    mostrarImagen(logos[currentLogo]);
+    showImage("logo.jpg");
     lastChangeTime = millis();
 
     humidity::init(); // Inicialitza el sensor de humitat
 }
 
 void loop() {
-    int ldrValue = analogRead(LDR);
-    static bool esperaCambio = false;
-
-    if (ldrValue == 0 && !cambioDetectado && !esperaCambio) {
-        cambioDetectado = true;
-        esperaCambio = true;
-        indiceBrillo = (indiceBrillo + 1) % numNiveles;
-        dma_display->setBrightness8(nivelesBrillo[indiceBrillo]);
+    if (ldr::checkChange()) {
+        // Obtén el nivel de brillo del sensor y actualiza la pantalla
+        uint8_t brightness = ldr::getBrightnessLevel();
+        dma_display->setBrightness8(brightness);
+        Serial.printf("Brillo ajustado a: %d\n", brightness);
     }
 
-    if (ldrValue > ldrThreshold) {
-        cambioDetectado = false;
-        esperaCambio = false;
-    }
+    static unsigned long lastActionTime = 0;
+    if (millis() - lastActionTime >= 1000) {
+        lastActionTime = millis();
 
-    if (!showFractals) {
-        if (millis() - lastChangeTime >= logoDelay) {
-            currentLogo = (currentLogo + 1) % 2;
-            dma_display->clearScreen();
-            mostrarImagen(logos[currentLogo]);
-            lastChangeTime = millis();
+        // Lee la temperatura (puedes usarla si es necesario)
+        float temperature = temperature::readTemperatureSensor();
+        Serial.printf("Temperatura: %.2f °C\n", temperature);
 
-            if (currentLogo == 1 && mostrarFractales) {
-                showFractals = true;
-                fractalIndex = 0;
-            }
+        // Lee el nivel de sonido y muestra la imagen correspondiente
+        float soundLevel = sound::readSoundDataInDecibels();
+        Serial.printf("Nivell de so: %d\n", soundLevel);
+
+        if (soundLevel < 30) {
+            showImage("good.jpg");
+        } else if (soundLevel < 70) {
+            showImage("normal.jpg");
+        } else {
+            showImage("angry.jpg");
         }
-    } else {
-        dma_display->clearScreen();
-        dma_display->setTextSize(1);
-        dma_display->setTextColor(dma_display->color565(255, 255, 255));
-        dma_display->setCursor(10, 28);
-        String macAddress = WiFi.macAddress();
-        dma_display->print(macAddress);
-        delay(fractalDelay);
-        showFractals = false;
     }
 
     float humitat = humidity::readHumidity();
