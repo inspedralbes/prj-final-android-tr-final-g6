@@ -1,4 +1,5 @@
 {
+    "date": "2023-10-04T12:00:00",
     "startglow": 50,
     "glowlevels": [0, 10, 50, 150, 255],
     "ldrThreshold": 1000,
@@ -12,5 +13,15 @@
     "db_good": 30,
     "db_normal": 50,
     "db_angry": 70,
-    "db_very_angry": 90
+    "db_very_angry": 90,
+
+    "images": [
+        "https://dev.acubox.cat/back/api/fileSensor/images/normal.jpg",
+        "https://dev.acubox.cat/back/api/fileSensor/images/good.jpg",
+        "https://dev.acubox.cat/back/api/fileSensor/images/angry.jpg",
+        "https://dev.acubox.cat/back/api/fileSensor/images/normal.jpg",
+        "https://dev.acubox.cat/back/api/fileSensor/images/connected.jpg",
+        "https://dev.acubox.cat/back/api/fileSensor/images/disconnected.jpg"
+    ]
+
 }  

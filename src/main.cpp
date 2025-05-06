@@ -10,6 +10,7 @@
 #include "modules/ldr/ldr.h"
 #include "modules/sound/sound.h"
 #include "modules/humidity/humidity.h"
+#include "modules/download/download.h"
 
 #define ESP32_LED_BUILTIN 2
 
@@ -93,6 +94,9 @@ void setup() {
 
     if (connected) {
         showImage("connected.jpg");
+        download::downloadConfig();
+        config::cargarConfig();
+        download::downloadImages();
         delay(5000);
     } else {
         showImage("disconnected.jpg");

@@ -5,6 +5,7 @@
 #include <ArduinoJson.h>
 
 namespace config {
+    extern String date;
     extern int startglow;
     extern int ldrThreshold;
     extern int logoDelay;
@@ -18,6 +19,7 @@ namespace config {
     extern int db_normal;
     extern int db_angry;
     extern int db_very_angry;
+    extern String images[10];
     
     // Función para cargar config desde JSON
     void cargarConfig();

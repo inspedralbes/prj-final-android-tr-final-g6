@@ -3,6 +3,7 @@
 #include <SPIFFS.h>
 
 namespace config {
+    String date = "2023-10-01";
     int startglow = 50;
     int ldrThreshold = 1000;
     int displayRotation = 0;
@@ -17,6 +18,18 @@ namespace config {
     int db_normal = 70;
     int db_angry = 90;
     int db_very_angry = 110;
+    String images[10] = {
+        "good.jpg",
+        "normal.jpg",
+        "angry.jpg",
+        "very_angry.jpg",
+        "logo.jpg",
+        "connected.jpg",
+        "disconnected.jpg",
+        "logo.jpg",
+        "fractals.jpg",
+        "fractals2.jpg"
+    };
 
 
     void cargarConfig() {
@@ -50,6 +63,7 @@ namespace config {
         }
 
         // Cargar valores desde config.json
+        date = doc["date"] | date;
         startglow = doc["startglow"] | startglow;
         ldrThreshold = doc["ldrThreshold"] | ldrThreshold;
         fractalDelay = doc["fractalDelay"] | fractalDelay;
@@ -68,6 +82,13 @@ namespace config {
             numNiveles = niveles.size();
             for (int i = 0; i < numNiveles; i++) {
                 glowlevels[i] = niveles[i];
+            }
+        }
+
+        JsonArray imgArray = doc["images"];
+        if (imgArray && imgArray.size() <= 10) {
+            for (int i = 0; i < imgArray.size(); i++) {
+            images[i] = imgArray[i].as<String>();
             }
         }
 
