@@ -9,8 +9,8 @@
     "wifi_ssid": "winewithcola",
     "wifi_password": "siquetieneswifi",
 
-    "db_good": 50,
-    "db_normal": 70,
-    "db_angry": 90,
-    "db_very_angry": 110
+    "db_good": 30,
+    "db_normal": 50,
+    "db_angry": 70,
+    "db_very_angry": 90
 }  
