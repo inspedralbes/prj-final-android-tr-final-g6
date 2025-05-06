@@ -4,7 +4,6 @@
 #include <SPIFFS.h>
 #include <TJpg_Decoder.h>
 #include "modules/wifi/wifi.h"
-#include <WiFi.h>
 #include "pins.h"
 #include "modules/config/config.h"
 #include "modules/temperature/temperature.h"
@@ -126,6 +125,15 @@ void loop() {
         float soundLevel = sound::readSoundDataInDecibels();
         Serial.printf("Nivell de so: %d\n", soundLevel);
 
+        float humitat = humidity::readHumidity();
+        if (humitat >= 0) {
+            Serial.print("Humitat: ");
+            Serial.print(humitat);
+            Serial.println("%");
+        } else {
+            Serial.println("Error llegint la humitat.");
+        }
+
         if (soundLevel < 30) {
             showImage("good.jpg");
         } else if (soundLevel < 70) {
@@ -134,14 +142,4 @@ void loop() {
             showImage("angry.jpg");
         }
     }
-
-    float humitat = humidity::readHumidity();
-    if (humitat >= 0) {
-        Serial.print("Humitat: ");
-        Serial.print(humitat);
-        Serial.println("%");
-    } else {
-        Serial.println("Error llegint la humitat.");
-    }
-    delay(2000); // Llegeix cada 2 segons
 }
