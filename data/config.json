@@ -6,6 +6,11 @@
     "fractalDelay": 5000,
     "logoDelay": 15000,
 
-    "wifi_ssid": "gencat_ENS_EDU_bis",
-    "wifi_password": ""
+    "wifi_ssid": "winewithcola",
+    "wifi_password": "siquetieneswifi",
+
+    "db_good": 50,
+    "db_normal": 70,
+    "db_angry": 90,
+    "db_very_angry": 110
 }  

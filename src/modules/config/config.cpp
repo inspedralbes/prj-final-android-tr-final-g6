@@ -13,6 +13,10 @@ namespace config {
     bool mostrarFractales = true;
     int glowlevels[5] = {0};
     int numNiveles = 5;
+    int db_good = 50;
+    int db_normal = 70;
+    int db_angry = 90;
+    int db_very_angry = 110;
 
 
     void cargarConfig() {
@@ -54,6 +58,10 @@ namespace config {
         wifiPassword = doc["wifi_password"] | wifiPassword;
         displayRotation = doc["displayRotation"] | displayRotation;
         mostrarFractales = doc["mostrarFractales"] | mostrarFractales;
+        db_good = doc["db_good"] | db_good;
+        db_normal = doc["db_normal"] | db_normal;
+        db_angry = doc["db_angry"] | db_angry;
+        db_very_angry = doc["db_very_angry"] | db_very_angry;
 
         JsonArray niveles = doc["glowlevels"];
         if (niveles && niveles.size() <= 5) {
