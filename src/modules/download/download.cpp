@@ -7,7 +7,8 @@ namespace download {
     void downloadConfig() {
         Serial.println("Descargando configuración desde el servidor...");
 
-        WiFiClient client;
+        WiFiClientSecure client;
+        client.setInsecure();
         HTTPClient http;
 
         String url = "https://dev.acubox.cat/back/api/fileSensor/config.json";
@@ -41,7 +42,8 @@ namespace download {
 
             Serial.printf("Descargando imagen desde %s\n", url.c_str());
 
-            WiFiClient client;
+            WiFiClientSecure client;
+            client.setInsecure();
             HTTPClient http;
 
             if (http.begin(client, url)) {

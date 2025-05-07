@@ -25,10 +25,7 @@ namespace config {
         "very_angry.jpg",
         "logo.jpg",
         "connected.jpg",
-        "disconnected.jpg",
-        "logo.jpg",
-        "fractals.jpg",
-        "fractals2.jpg"
+        "disconnected.jpg"
     };
 
 

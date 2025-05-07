@@ -19,13 +19,16 @@ bool connected = false;
 int currentLogo = 0;
 unsigned long lastChangeTime = 0;
 
-bool tjpgDrawCallback(int16_t x, int16_t y, uint16_t w, uint16_t h, uint16_t *bitmap) {
-    if (y >= 64) return false;
+bool tjpgDrawCallback(int16_t x, int16_t y, uint16_t w, uint16_t h, uint16_t *bitmap)
+{
+    if (y >= 64)
+        return false;
     dma_display->drawRGBBitmap(x, y, bitmap, w, h);
     return true;
 }
 
-void displaySetup(uint8_t displayBright, uint8_t displayRotation) {
+void displaySetup(uint8_t displayBright, uint8_t displayRotation)
+{
     HUB75_I2S_CFG mxconfig(64, 64, 1);
 
     mxconfig.gpio.r1 = Pines::MATRIX_R1;
@@ -41,7 +44,7 @@ void displaySetup(uint8_t displayBright, uint8_t displayRotation) {
     mxconfig.gpio.e = Pines::MATRIX_E;
     mxconfig.gpio.clk = Pines::MATRIX_CLK;
     mxconfig.gpio.lat = Pines::MATRIX_LAT;
-    mxconfig.gpio.oe  = Pines::MATRIX_OE;
+    mxconfig.gpio.oe = Pines::MATRIX_OE;
 
     mxconfig.clkphase = false;
 
@@ -52,19 +55,22 @@ void displaySetup(uint8_t displayBright, uint8_t displayRotation) {
     dma_display->setRotation(config::displayRotation);
 }
 
-void showImage(const char *filename) {
+void showImage(const char *filename)
+{
     Serial.printf("Mostrant imatge: %s\n", filename);
 
     Serial.println();
 
     String fullPath = String("/images/") + filename;
     Serial.printf("Ruta completa: %s\n", fullPath.c_str());
-    if (!SPIFFS.exists(fullPath)) {
+    if (!SPIFFS.exists(fullPath))
+    {
         Serial.println("El archivo no existe.");
         return;
     }
     File file = SPIFFS.open(fullPath, "r");
-    if (!file) {
+    if (!file)
+    {
         Serial.println("No se pudo abrir el archivo.");
         return;
     }
@@ -72,7 +78,8 @@ void showImage(const char *filename) {
     file.close();
 }
 
-void setup() {
+void setup()
+{
     Serial.begin(115200);
     pinMode(ESP32_LED_BUILTIN, OUTPUT);
 
@@ -92,13 +99,16 @@ void setup() {
 
     connected = wifi::connectToWiFi();
 
-    if (connected) {
+    if (connected)
+    {
         showImage("connected.jpg");
         download::downloadConfig();
         config::cargarConfig();
         download::downloadImages();
         delay(5000);
-    } else {
+    }
+    else
+    {
         showImage("disconnected.jpg");
         delay(5000);
     }
@@ -109,8 +119,10 @@ void setup() {
     humidity::init(); // Inicialitza el sensor de humitat
 }
 
-void loop() {
-    if (ldr::checkChange()) {
+void loop()
+{
+    if (ldr::checkChange())
+    {
         // Obtén el nivel de brillo del sensor y actualiza la pantalla
         uint8_t brightness = ldr::getBrightnessLevel();
         dma_display->setBrightness8(brightness);
@@ -118,7 +130,8 @@ void loop() {
     }
 
     static unsigned long lastActionTime = 0;
-    if (millis() - lastActionTime >= 1000) {
+    if (millis() - lastActionTime >= 1000)
+    {
         lastActionTime = millis();
 
         // Lee la temperatura (puedes usarla si es necesario)
@@ -130,19 +143,27 @@ void loop() {
         Serial.printf("Nivell de so: %d\n", soundLevel);
 
         float humitat = humidity::readHumidity();
-        if (humitat >= 0) {
+        if (humitat >= 0)
+        {
             Serial.print("Humitat: ");
             Serial.print(humitat);
             Serial.println("%");
-        } else {
+        }
+        else
+        {
             Serial.println("Error llegint la humitat.");
         }
 
-        if (soundLevel < 30) {
+        if (soundLevel < config::db_normal)
+        {
             showImage("good.jpg");
-        } else if (soundLevel < 70) {
+        }
+        else if (soundLevel > config::db_normal && soundLevel < config::db_angry)
+        {
             showImage("normal.jpg");
-        } else {
+        }
+        else if (soundLevel > config::db_angry)
+        {
             showImage("angry.jpg");
         }
     }
