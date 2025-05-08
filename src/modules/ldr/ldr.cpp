@@ -1,5 +1,7 @@
 #include <Arduino.h>
 #include "ldr.h"
+#include <ArduinoJson.h>
+#include <TJpg_Decoder.h>
 #include "../../pins.h"
 #include "../../modules/config/config.h"
 
@@ -38,4 +40,27 @@ namespace ldr {
     int getBrightnessLevel() {
         return config::glowlevels[indiceBrillo];
     }
+
+    void showImage(const char *filename)
+{
+    Serial.printf("Mostrant imatge: %s\n", filename);
+
+    Serial.println();
+
+    String fullPath = String("/images/") + filename;
+    Serial.printf("Ruta completa: %s\n", fullPath.c_str());
+    if (!SPIFFS.exists(fullPath))
+    {
+        Serial.println("El archivo no existe.");
+        return;
+    }
+    File file = SPIFFS.open(fullPath, "r");
+    if (!file)
+    {
+        Serial.println("No se pudo abrir el archivo.");
+        return;
+    }
+    TJpgDec.drawFsJpg(0, 0, fullPath.c_str());
+    file.close();
+}
 }

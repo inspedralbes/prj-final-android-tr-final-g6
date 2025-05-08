@@ -11,13 +11,18 @@
 #include "modules/sound/sound.h"
 #include "modules/humidity/humidity.h"
 #include "modules/download/download.h"
+#include "modules/connection/connection.h"
+#include "modules/accesspoint/accesspoint.h"
 
 #define ESP32_LED_BUILTIN 2
 
 MatrixPanel_I2S_DMA *dma_display = nullptr;
-bool connected = false;
 int currentLogo = 0;
 unsigned long lastChangeTime = 0;
+
+bool connected = false;
+bool apActive = false;
+String apikey;
 
 bool tjpgDrawCallback(int16_t x, int16_t y, uint16_t w, uint16_t h, uint16_t *bitmap)
 {
@@ -55,29 +60,6 @@ void displaySetup(uint8_t displayBright, uint8_t displayRotation)
     dma_display->setRotation(config::displayRotation);
 }
 
-void showImage(const char *filename)
-{
-    Serial.printf("Mostrant imatge: %s\n", filename);
-
-    Serial.println();
-
-    String fullPath = String("/images/") + filename;
-    Serial.printf("Ruta completa: %s\n", fullPath.c_str());
-    if (!SPIFFS.exists(fullPath))
-    {
-        Serial.println("El archivo no existe.");
-        return;
-    }
-    File file = SPIFFS.open(fullPath, "r");
-    if (!file)
-    {
-        Serial.println("No se pudo abrir el archivo.");
-        return;
-    }
-    TJpgDec.drawFsJpg(0, 0, fullPath.c_str());
-    file.close();
-}
-
 void setup()
 {
     Serial.begin(115200);
@@ -93,15 +75,17 @@ void setup()
 
     Serial.println("Configuració de la pantalla completada.");
 
-    showImage("logo.jpg");
+    ldr::showImage("logo.jpg");
 
     ldr::setup();
+
+    config::cargarWifi();
 
     connected = wifi::connectToWiFi();
 
     if (connected)
     {
-        showImage("connected.jpg");
+        ldr::showImage("connected.jpg");
         download::downloadConfig();
         config::cargarConfig();
         download::downloadImages();
@@ -109,11 +93,15 @@ void setup()
     }
     else
     {
-        showImage("disconnected.jpg");
-        delay(5000);
+        Serial.println("No s'ha pogut connectar a la xarxa WiFi. Creant Access Point.");
+        ldr::showImage("disconnected.jpg");
+        delay(2000);
+        ldr::showImage("accesspoint.jpg");
+        accesspoint::setupAccessPoint();
+        apActive = true;
     }
 
-    showImage("logo.jpg");
+
     lastChangeTime = millis();
 
     humidity::init(); // Inicialitza el sensor de humitat
@@ -121,12 +109,44 @@ void setup()
 
 void loop()
 {
+    if (apActive)
+    {
+        accesspoint::loopAccessPoint();
+        return;
+    }
+
     if (ldr::checkChange())
     {
-        // Obtén el nivel de brillo del sensor y actualiza la pantalla
         uint8_t brightness = ldr::getBrightnessLevel();
         dma_display->setBrightness8(brightness);
         Serial.printf("Brillo ajustado a: %d\n", brightness);
+    }
+
+    if (!apikey)
+    {
+        apikey = config::getApikey();
+        
+        if (!apikey)  // Si sigue sin haber apikey
+        {
+            Serial.println("No hi ha API Key. Descarregant nova configuració.");
+            String MAC = wifi::getMacAddress();
+            String newApikey = connection::postNewSensor(MAC);
+
+            if (newApikey != "")
+            {
+                Serial.printf("API Key: %s\n", newApikey.c_str());
+                config::apikeyInsert(newApikey);
+                apikey = newApikey;
+            }
+            else
+            {
+                Serial.println("No s'ha pogut obtenir la API Key.");
+            }
+        }
+        else
+        {
+            Serial.printf("API Key carregada: %s\n", apikey.c_str());
+        }
     }
 
     static unsigned long lastActionTime = 0;
@@ -134,11 +154,9 @@ void loop()
     {
         lastActionTime = millis();
 
-        // Lee la temperatura (puedes usarla si es necesario)
         float temperature = temperature::readTemperatureSensor();
         Serial.printf("Temperatura: %.2f °C\n", temperature);
 
-        // Lee el nivel de sonido y muestra la imagen correspondiente
         float soundLevel = sound::readSoundDataInDecibels();
         Serial.printf("Nivell de so: %d\n", soundLevel);
 
@@ -152,19 +170,6 @@ void loop()
         else
         {
             Serial.println("Error llegint la humitat.");
-        }
-
-        if (soundLevel < config::db_normal)
-        {
-            showImage("good.jpg");
-        }
-        else if (soundLevel > config::db_normal && soundLevel < config::db_angry)
-        {
-            showImage("normal.jpg");
-        }
-        else if (soundLevel > config::db_angry)
-        {
-            showImage("angry.jpg");
         }
     }
 }

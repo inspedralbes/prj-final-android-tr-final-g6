@@ -6,6 +6,7 @@ namespace ldr {
     int read();
     bool checkChange();
     int getBrightnessLevel();
+    void showImage(const char *filename);
 }
 
 #endif

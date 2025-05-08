@@ -11,7 +11,13 @@ namespace wifi {
         Serial.print("🔄 Conectando a ");
         Serial.println(config::wifiSSID);
 
-        WiFi.begin(config::wifiSSID.c_str(), config::wifiPassword.c_str());
+        if (config::wifiPassword == "") {
+            Serial.println("🔑 Sin contraseña.");
+            WiFi.begin(config::wifiSSID.c_str());
+        } else {
+            Serial.println("🔑 Con contraseña.");
+            WiFi.begin(config::wifiSSID.c_str(), config::wifiPassword.c_str());
+        }
 
         unsigned long startAttemptTime = millis();
         const unsigned long timeout = 10000; // 10 segundos
@@ -46,5 +52,24 @@ namespace wifi {
             }
             return false;
         }
+    }
+    String getMacAddress() {
+        uint8_t mac[6];
+        WiFi.macAddress(mac);
+        String macStr = String(mac[0], HEX) + ":" +
+                        String(mac[1], HEX) + ":" +
+                        String(mac[2], HEX) + ":" +
+                        String(mac[3], HEX) + ":" +
+                        String(mac[4], HEX) + ":" +
+                        String(mac[5], HEX);
+        return macStr;
+    }
+    String getIp() {
+        IPAddress ip = WiFi.localIP();
+        String ipStr = String(ip[0]) + "." +
+                       String(ip[1]) + "." +
+                       String(ip[2]) + "." +
+                       String(ip[3]);
+        return ipStr;
     }
 }

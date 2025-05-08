@@ -7,13 +7,12 @@
     "fractalDelay": 5000,
     "logoDelay": 15000,
 
-    "wifi_ssid": "winewithcola",
-    "wifi_password": "siquetieneswifi",
+    "db_good": 0,
+    "db_normal": 70,
+    "db_angry": 80,
 
-    "db_good": 30,
-    "db_normal": 50,
-    "db_angry": 70,
-    "db_very_angry": 90,
+    "url_newsensor": "https://dev.acubox.cat/back/api/newsensors",
+    "url_sensor": "https://dev.acubox.cat/back/api/sensors",
 
     "images": [
         "https://dev.acubox.cat/back/api/fileSensor/images/normal.jpg",
@@ -21,7 +20,8 @@
         "https://dev.acubox.cat/back/api/fileSensor/images/angry.jpg",
         "https://dev.acubox.cat/back/api/fileSensor/images/normal.jpg",
         "https://dev.acubox.cat/back/api/fileSensor/images/connected.jpg",
-        "https://dev.acubox.cat/back/api/fileSensor/images/disconnected.jpg"
+        "https://dev.acubox.cat/back/api/fileSensor/images/disconnected.jpg",
+        "https://dev.acubox.cat/back/api/fileSensor/images/accespoint.jpg"
     ]
 
 }  

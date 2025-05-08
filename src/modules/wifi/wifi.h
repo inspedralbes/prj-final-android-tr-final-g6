@@ -6,4 +6,6 @@ namespace wifi {
 
     bool loadWiFiConfig(WiFiConfig& config);
     bool connectToWiFi();
+    String getMacAddress();
+    String getIp();
 }

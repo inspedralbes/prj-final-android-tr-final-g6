@@ -27,6 +27,8 @@ namespace config {
         "connected.jpg",
         "disconnected.jpg"
     };
+    String url_newsensor = "";
+    String url_sensor = "";
 
 
     void cargarConfig() {
@@ -65,14 +67,14 @@ namespace config {
         ldrThreshold = doc["ldrThreshold"] | ldrThreshold;
         fractalDelay = doc["fractalDelay"] | fractalDelay;
         logoDelay = doc["logoDelay"] | logoDelay;
-        wifiSSID = doc["wifi_ssid"] | wifiSSID;
-        wifiPassword = doc["wifi_password"] | wifiPassword;
         displayRotation = doc["displayRotation"] | displayRotation;
         mostrarFractales = doc["mostrarFractales"] | mostrarFractales;
         db_good = doc["db_good"] | db_good;
         db_normal = doc["db_normal"] | db_normal;
         db_angry = doc["db_angry"] | db_angry;
         db_very_angry = doc["db_very_angry"] | db_very_angry;
+        url_newsensor = doc["url_newsensor"] | url_newsensor;
+        url_sensor = doc["url_sensor"] | url_sensor;
 
         JsonArray niveles = doc["glowlevels"];
         if (niveles && niveles.size() <= 5) {
@@ -97,4 +99,89 @@ namespace config {
 
         Serial.println("✅ Configuración cargada desde config.json.");
     }
+
+    void cargarWifi(){
+        Serial.println("Cargando configuración desde wifi.json...");
+        
+        if (!SPIFFS.exists("/wifi.json")) {
+            Serial.println("❌ No se encontró config.json. Usando valores por defecto.");
+            return;
+        }
+
+        File configFile = SPIFFS.open("/wifi.json", "r");
+        if (!configFile) {
+            Serial.println("❌ No se pudo abrir config.json.");
+            return;
+        }
+
+        size_t size = configFile.size();
+        if (size > 2048) {
+            Serial.println("❌ Config demasiado grande.");
+            return;
+        }
+
+        std::unique_ptr<char[]> buf(new char[size]);
+        configFile.readBytes(buf.get(), size);
+
+        StaticJsonDocument<2048> doc;
+        auto error = deserializeJson(doc, buf.get());
+        if (error) {
+            Serial.println("❌ Error al parsear wifi.json.");
+            return;
+        }
+
+        wifiSSID = doc["wifi_ssid"] | wifiSSID;
+        wifiPassword = doc["wifi_password"] | wifiPassword;
+    }
+
+    void apikeyInsert(String apikey) {
+        StaticJsonDocument<256> doc;
+        doc["apikey"] = apikey;
+
+        File file = SPIFFS.open("/apikey.json", "w");
+        if (!file) {
+            Serial.println("❌ No se pudo crear apikey.json.");
+            return;
+        }
+
+        if (serializeJson(doc, file) == 0) {
+            Serial.println("❌ Error al escribir en apikey.json.");
+        } else {
+            Serial.println("✅ API Key guardada en apikey.json.");
+        }
+
+        file.close();
+    }
+
+    String getApikey() {
+        if (!SPIFFS.exists("/apikey.json")) {
+            Serial.println("❌ No se encontró apikey.json.");
+            return "";
+        }
+
+        File file = SPIFFS.open("/apikey.json", "r");
+        if (!file) {
+            Serial.println("❌ No se pudo abrir apikey.json.");
+            return "";
+        }
+
+        StaticJsonDocument<256> doc;
+        DeserializationError error = deserializeJson(doc, file);
+        file.close();
+
+        if (error) {
+            Serial.println("❌ Error al leer apikey.json.");
+            return "";
+        }
+
+        String apikey = doc["apikey"] | "NULL";
+        if (apikey == "NULL") {
+            Serial.println("❌ API Key no encontrada en apikey.json.");
+        } else {
+            Serial.println("✅ API Key leída correctamente.");
+        }
+
+        return apikey;
+    }
+
 }
