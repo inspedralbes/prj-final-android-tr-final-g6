@@ -13,6 +13,7 @@
 #include "modules/download/download.h"
 #include "modules/connection/connection.h"
 #include "modules/accesspoint/accesspoint.h"
+#include "modules/emojis/emojis.h"
 
 #define ESP32_LED_BUILTIN 2
 
@@ -101,7 +102,6 @@ void setup()
         apActive = true;
     }
 
-
     lastChangeTime = millis();
 
     humidity::init(); // Inicialitza el sensor de humitat
@@ -122,44 +122,25 @@ void loop()
         Serial.printf("Brillo ajustado a: %d\n", brightness);
     }
 
-    if (!apikey)
-    {
-        apikey = config::getApikey();
-        
-        if (!apikey)  // Si sigue sin haber apikey
-        {
-            Serial.println("No hi ha API Key. Descarregant nova configuració.");
-            String MAC = wifi::getMacAddress();
-            String newApikey = connection::postNewSensor(MAC);
-
-            if (newApikey != "")
-            {
-                Serial.printf("API Key: %s\n", newApikey.c_str());
-                config::apikeyInsert(newApikey);
-                apikey = newApikey;
-            }
-            else
-            {
-                Serial.println("No s'ha pogut obtenir la API Key.");
-            }
-        }
-        else
-        {
-            Serial.printf("API Key carregada: %s\n", apikey.c_str());
-        }
-    }
-
     static unsigned long lastActionTime = 0;
+    static unsigned long lastRequestTime = 0;
+
     if (millis() - lastActionTime >= 1000)
     {
         lastActionTime = millis();
 
+        // Lectura de temperatura
         float temperature = temperature::readTemperatureSensor();
         Serial.printf("Temperatura: %.2f °C\n", temperature);
 
+        // Lectura de nivel de sonido
         float soundLevel = sound::readSoundDataInDecibels();
         Serial.printf("Nivell de so: %d\n", soundLevel);
 
+        // Actualiza emoji en función del nivel de sonido
+        emojis::changeEmoji(soundLevel);
+
+        // Lectura de humedad
         float humitat = humidity::readHumidity();
         if (humitat >= 0)
         {
@@ -170,6 +151,37 @@ void loop()
         else
         {
             Serial.println("Error llegint la humitat.");
+        }
+
+        apikey = config::getApikey();
+        Serial.println(apikey); // ← se añadió punto y coma
+
+        if (apikey == "EXAMPLE")
+        {
+                lastRequestTime = millis();
+                Serial.println("No s'ha trobat cap API Key vàlida a la configuració. Descarregant nova configuració...");
+                String MAC = wifi::getMacAddress();
+                Serial.printf("Adreça MAC del dispositiu: %s\n", MAC.c_str());
+                String newApikey = connection::postNewSensor(MAC);
+                Serial.print("Nova API Key: ");
+                Serial.println(newApikey);
+
+                if (newApikey != "" || newApikey != "EXAMPLE")
+                {
+                    Serial.printf("Nova API Key obtinguda: %s\n", newApikey.c_str());
+                    config::apikeyInsert(newApikey);
+                    apikey = newApikey;
+                    Serial.println("API Key desada correctament.");
+                }
+                else
+                {
+                    Serial.println("Error: No s'ha pogut obtenir la API Key del servidor.");
+                }
+        }
+        else
+        {
+            Serial.printf("API Key carregada: %s\n", apikey.c_str());
+            connection::postSensorData(apikey, soundLevel, temperature, humitat, wifi::getMacAddress());
         }
     }
 }
