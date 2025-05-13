@@ -23,6 +23,7 @@ unsigned long lastChangeTime = 0;
 
 bool connected = false;
 bool apActive = false;
+char dateTime[20];
 String apikey;
 
 bool tjpgDrawCallback(int16_t x, int16_t y, uint16_t w, uint16_t h, uint16_t *bitmap)
@@ -69,6 +70,8 @@ void setup()
     SPIFFS.begin(true);
     config::cargarConfig();
 
+    configTzTime("CET-1CEST,M3.5.0/2,M10.5.0/3", "pool.ntp.org", "time.nist.gov");
+
     displaySetup(config::startglow, config::displayRotation);
 
     TJpgDec.setJpgScale(1);
@@ -87,6 +90,7 @@ void setup()
     if (connected)
     {
         ldr::showImage("connected.jpg");
+        delay(2000);
         download::downloadConfig();
         config::cargarConfig();
         download::downloadImages();
@@ -104,7 +108,26 @@ void setup()
 
     lastChangeTime = millis();
 
-    humidity::init(); // Inicialitza el sensor de humitat
+    humidity::init();
+
+    apikey = config::getApikey();
+    Serial.println(apikey);
+    String MAC = wifi::getMacAddress();
+    Serial.printf("Adreça MAC del dispositiu: %s\n", MAC.c_str());
+    String newApikey = connection::postNewSensor(MAC);
+    Serial.print("Nova API Key: ");
+    Serial.println(newApikey);
+    Serial.printf("Nova API Key obtinguda: %s\n", newApikey.c_str());
+    if (newApikey != apikey)
+    {
+        Serial.println("API Key canviada.");
+        Serial.printf("API Key antiga: %s\n", apikey.c_str());
+        Serial.printf("API Key nova: %s\n", newApikey.c_str());
+        config::apikeyInsert(newApikey);
+        apikey = newApikey;
+    }
+    Serial.println("API Key desada correctament.");
+    Serial.println("Error: No s'ha pogut obtenir la API Key del servidor.");
 }
 
 void loop()
@@ -125,22 +148,28 @@ void loop()
     static unsigned long lastActionTime = 0;
     static unsigned long lastRequestTime = 0;
 
-    if (millis() - lastActionTime >= 1000)
+    static float lastTemperature = 0.0;
+    static float lastSoundLevel = 0.0;
+
+    // Cada 500 ms: leer sensores básicos y actualizar emoji
+    if (millis() - lastActionTime >= 500)
     {
         lastActionTime = millis();
 
-        // Lectura de temperatura
-        float temperature = temperature::readTemperatureSensor();
-        Serial.printf("Temperatura: %.2f °C\n", temperature);
+        lastTemperature = temperature::readTemperatureSensor();
+        lastSoundLevel = sound::readSoundDataInDecibels();
 
-        // Lectura de nivel de sonido
-        float soundLevel = sound::readSoundDataInDecibels();
-        Serial.printf("Nivell de so: %d\n", soundLevel);
+        Serial.printf("Temperatura: %.2f °C\n", lastTemperature);
+        Serial.printf("Nivell de so: %.2f\n", lastSoundLevel);
 
-        // Actualiza emoji en función del nivel de sonido
-        emojis::changeEmoji(soundLevel);
+        emojis::changeEmoji(lastSoundLevel);
+    }
 
-        // Lectura de humedad
+    // Cada 1000 ms: enviar datos al servidor
+    if (millis() - lastRequestTime >= 1000)
+    {
+        lastRequestTime = millis();
+
         float humitat = humidity::readHumidity();
         if (humitat >= 0)
         {
@@ -153,35 +182,19 @@ void loop()
             Serial.println("Error llegint la humitat.");
         }
 
-        apikey = config::getApikey();
-        Serial.println(apikey); // ← se añadió punto y coma
+        Serial.printf("API Key carregada: %s\n", apikey.c_str());
 
-        if (apikey == "EXAMPLE")
+        struct tm timeinfo;
+        if (!getLocalTime(&timeinfo))
         {
-                lastRequestTime = millis();
-                Serial.println("No s'ha trobat cap API Key vàlida a la configuració. Descarregant nova configuració...");
-                String MAC = wifi::getMacAddress();
-                Serial.printf("Adreça MAC del dispositiu: %s\n", MAC.c_str());
-                String newApikey = connection::postNewSensor(MAC);
-                Serial.print("Nova API Key: ");
-                Serial.println(newApikey);
-
-                if (newApikey != "" || newApikey != "EXAMPLE")
-                {
-                    Serial.printf("Nova API Key obtinguda: %s\n", newApikey.c_str());
-                    config::apikeyInsert(newApikey);
-                    apikey = newApikey;
-                    Serial.println("API Key desada correctament.");
-                }
-                else
-                {
-                    Serial.println("Error: No s'ha pogut obtenir la API Key del servidor.");
-                }
+            Serial.println("Error obtenint la data i hora actual.");
         }
         else
         {
-            Serial.printf("API Key carregada: %s\n", apikey.c_str());
-            connection::postSensorData(apikey, soundLevel, temperature, humitat, wifi::getMacAddress());
+            strftime(dateTime, sizeof(dateTime), "%Y-%m-%dT%H:%M:%S", &timeinfo);
+            Serial.printf("Data i hora actual: %s\n", dateTime);
         }
+
+        connection::postSensorData(apikey, lastSoundLevel, lastTemperature, humitat, dateTime, wifi::getMacAddress());
     }
 }

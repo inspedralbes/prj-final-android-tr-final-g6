@@ -18,10 +18,10 @@ namespace config {
     extern int db_good;
     extern int db_normal;
     extern int db_angry;
-    extern int db_very_angry;
     extern String images[10];
     extern String url_newsensor;
     extern String url_sensor;
+    extern float vref_sound;
     
     // Función para cargar config desde JSON
     void cargarConfig();

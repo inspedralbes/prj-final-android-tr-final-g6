@@ -2,11 +2,12 @@
 #include <HTTPClient.h>
 #include <SPIFFS.h>
 #include "../../modules/config/config.h"
+#include "../../modules/ldr/ldr.h"
 
 namespace download {
     void downloadConfig() {
         Serial.println("Descargando configuración desde el servidor...");
-
+        ldr::showImage("download.jpg");
         WiFiClientSecure client;
         client.setInsecure();
         HTTPClient http;

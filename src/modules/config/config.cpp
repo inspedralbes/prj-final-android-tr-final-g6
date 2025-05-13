@@ -17,15 +17,14 @@ namespace config {
     int db_good = 50;
     int db_normal = 70;
     int db_angry = 90;
-    int db_very_angry = 110;
+    float vref_sound = 0.7;
     String images[10] = {
         "good.jpg",
         "normal.jpg",
         "angry.jpg",
         "very_angry.jpg",
         "logo.jpg",
-        "connected.jpg",
-        "disconnected.jpg"
+        "connected.jpg"
     };
     String url_newsensor = "";
     String url_sensor = "";
@@ -72,9 +71,9 @@ namespace config {
         db_good = doc["db_good"] | db_good;
         db_normal = doc["db_normal"] | db_normal;
         db_angry = doc["db_angry"] | db_angry;
-        db_very_angry = doc["db_very_angry"] | db_very_angry;
         url_newsensor = doc["url_newsensor"] | url_newsensor;
         url_sensor = doc["url_sensor"] | url_sensor;
+        vref_sound = doc["vref_sound"] | vref_sound;
 
         JsonArray niveles = doc["glowlevels"];
         if (niveles && niveles.size() <= 5) {
@@ -98,6 +97,37 @@ namespace config {
         }
 
         Serial.println("✅ Configuración cargada desde config.json.");
+        Serial.println("\n--- Configuración actual ---");
+        Serial.println("Fecha: " + date);
+        Serial.println("Start Glow: " + String(startglow));
+        Serial.println("LDR Threshold: " + String(ldrThreshold));
+        Serial.println("Fractal Delay: " + String(fractalDelay));
+        Serial.println("Logo Delay: " + String(logoDelay));
+        Serial.println("Display Rotation: " + String(displayRotation));
+        Serial.println("Mostrar Fractales: " + String(mostrarFractales));
+        Serial.println("DB Good: " + String(db_good));
+        Serial.println("DB Normal: " + String(db_normal));
+        Serial.println("DB Angry: " + String(db_angry));
+        Serial.println("vref_sound: " + String(vref_sound));
+        Serial.println("URL New Sensor: " + url_newsensor);
+        Serial.println("URL Sensor: " + url_sensor);
+        Serial.println("WiFi SSID: " + wifiSSID);
+        Serial.println("WiFi Password: " + wifiPassword);
+
+        Serial.print("Niveles de brillo: ");
+        for (int i = 0; i < numNiveles; i++) {
+            Serial.print(glowlevels[i]);
+            if (i < numNiveles - 1) Serial.print(", ");
+        }
+        Serial.println();
+
+        Serial.println("Imágenes:");
+        for (int i = 0; i < 10; i++) {
+            if (images[i] != "") {
+            Serial.println(" - " + images[i]);
+            }
+        }
+        Serial.println("----------------------------");
     }
 
     void cargarWifi(){
@@ -165,21 +195,24 @@ namespace config {
             return "";
         }
 
-        StaticJsonDocument<256> doc;
+        DynamicJsonDocument doc(256);
         DeserializationError error = deserializeJson(doc, file);
-        file.close();
 
         if (error) {
             Serial.println("❌ Error al leer apikey.json.");
+            file.close();
             return "";
         }
 
-        String apikey = doc["apikey"] | "NULL";
-        if (apikey == "NULL") {
+        String apikey = doc["apikey"].as<String>();
+        if (apikey.isEmpty()) {
             Serial.println("❌ API Key no encontrada en apikey.json.");
         } else {
             Serial.println("✅ API Key leída correctamente.");
+            Serial.println("API Key: " + apikey);
         }
+
+        file.close();
 
         return apikey;
     }

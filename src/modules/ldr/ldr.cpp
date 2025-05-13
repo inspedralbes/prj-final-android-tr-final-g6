@@ -44,9 +44,6 @@ namespace ldr {
     void showImage(const char *filename)
 {
     Serial.printf("Mostrant imatge: %s\n", filename);
-
-    Serial.println();
-
     String fullPath = String("/images/") + filename;
     Serial.printf("Ruta completa: %s\n", fullPath.c_str());
     if (!SPIFFS.exists(fullPath))

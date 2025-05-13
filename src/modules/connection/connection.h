@@ -3,5 +3,5 @@
 namespace connection
 {
     String postNewSensor(const String value);
-    String postSensorData(const String apikey, int volume, int temperature, int humidity, const String MAC);
+    String postSensorData(const String apikey, int volume, int temperature, int humidity, const String dateTime, const String MAC);
 }

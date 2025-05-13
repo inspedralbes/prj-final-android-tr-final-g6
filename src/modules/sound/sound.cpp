@@ -1,5 +1,6 @@
 #include "pins.h"
 #include <Arduino.h>
+#include "../config/config.h"
 namespace sound
 {
     void initSoundSensor()
@@ -8,7 +9,6 @@ namespace sound
     }
 
     const int numMuestras = 100;
-    const float Vref = 0.07;
     const int umbral = 10;
 
     float readSoundDataInDecibels()
@@ -35,7 +35,7 @@ namespace sound
         if (Vrms < 1.0)
             Vrms = 1.0;
 
-        float dB = 20.0 * log10(Vrms / Vref);
+        float dB = 20.0 * log10(Vrms / config::vref_sound);
 
         Serial.println("dB: " + String(dB));
 
