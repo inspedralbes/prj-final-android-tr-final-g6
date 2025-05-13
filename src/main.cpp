@@ -79,7 +79,7 @@ void setup()
 
     Serial.println("Configuració de la pantalla completada.");
 
-    ldr::showImage("logo.jpg");
+    ldr::showImage("rajoy-mariano.gif");
 
     ldr::setup();
 
