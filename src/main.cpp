@@ -138,6 +138,7 @@ void loop()
         return;
     }
 
+    // Ajuste de brillo según el LDR
     if (ldr::checkChange())
     {
         uint8_t brightness = ldr::getBrightnessLevel();
@@ -145,27 +146,64 @@ void loop()
         Serial.printf("Brillo ajustado a: %d\n", brightness);
     }
 
-    static unsigned long lastActionTime = 0;
+    static unsigned long lastSampleTime = 0;
+    static unsigned long lastEmojiUpdateTime = 0;
     static unsigned long lastRequestTime = 0;
 
-    static float lastTemperature = 0.0;
+    static const int maxSamples = 10; // 500 ms * 10 = 5 segundos
+    static float soundSamples[maxSamples];
+    static float tempSamples[maxSamples];
+    static int sampleCount = 0;
+
     static float lastSoundLevel = 0.0;
+    static float lastTemperature = 0.0;
 
-    // Cada 500 ms: leer sensores básicos y actualizar emoji
-    if (millis() - lastActionTime >= 500)
+    // Cada 500 ms: tomar una muestra de sonido y temperatura
+    if (millis() - lastSampleTime >= 500)
     {
-        lastActionTime = millis();
+        lastSampleTime = millis();
 
-        lastTemperature = temperature::readTemperatureSensor();
-        lastSoundLevel = sound::readSoundDataInDecibels();
+        float temp = temperature::readTemperatureSensor();
+        float sound = sound::readSoundDataInDecibels();
 
-        Serial.printf("Temperatura: %.2f °C\n", lastTemperature);
-        Serial.printf("Nivell de so: %.2f\n", lastSoundLevel);
+        if (sampleCount < maxSamples)
+        {
+            tempSamples[sampleCount] = temp;
+            soundSamples[sampleCount] = sound;
+            sampleCount++;
+        }
 
-        emojis::changeEmoji(lastSoundLevel);
+        // Guardar última lectura para enviar cada segundo
+        lastTemperature = temp;
+        lastSoundLevel = sound;
+
+        Serial.printf("Muestra %d -> Temp: %.2f °C, Sonido: %.2f dB\n", sampleCount, temp, sound);
     }
 
-    // Cada 1000 ms: enviar datos al servidor
+    // Cada 5 segundos: calcular medias y actualizar el emoji
+    if (millis() - lastEmojiUpdateTime >= 5000)
+    {
+        lastEmojiUpdateTime = millis();
+
+        if (sampleCount > 0)
+        {
+            float avgSound = 0.0;
+            float avgTemp = 0.0;
+            for (int i = 0; i < sampleCount; i++)
+            {
+                avgSound += soundSamples[i];
+                avgTemp += tempSamples[i];
+            }
+            avgSound /= sampleCount;
+            avgTemp /= sampleCount;
+
+            Serial.printf("Media Temp: %.2f °C | Media Sonido: %.2f dB\n", avgTemp, avgSound);
+            emojis::changeEmoji(avgSound);
+            sampleCount = 0; // Reiniciar para el siguiente ciclo de 5s
+        }
+    }
+
+    // Cada 1 segundo: envío de datos
     if (millis() - lastRequestTime >= 1000)
     {
         lastRequestTime = millis();
@@ -173,9 +211,7 @@ void loop()
         float humitat = humidity::readHumidity();
         if (humitat >= 0)
         {
-            Serial.print("Humitat: ");
-            Serial.print(humitat);
-            Serial.println("%");
+            Serial.printf("Humitat: %.2f%%\n", humitat);
         }
         else
         {
