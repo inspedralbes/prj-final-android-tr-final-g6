@@ -81,6 +81,8 @@ void setup()
 
     ldr::showImage("rajoy-mariano.gif");
 
+    delay(5000);
+
     ldr::setup();
 
     config::cargarWifi();
