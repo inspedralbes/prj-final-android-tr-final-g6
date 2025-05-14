@@ -14,6 +14,7 @@
 #include "modules/connection/connection.h"
 #include "modules/accesspoint/accesspoint.h"
 #include "modules/emojis/emojis.h"
+#include "modules/gif/gif.h"
 
 #define ESP32_LED_BUILTIN 2
 
@@ -79,7 +80,11 @@ void setup()
 
     Serial.println("Configuració de la pantalla completada.");
 
-    ldr::showImage("rajoy-mariano.gif");
+    // Inicializa el objeto GifHandler con la pantalla y la ruta del GIF
+    GifHandler gifHandler(dma_display, "/images/rajoy-mariano.gif");
+
+    // Muestra el GIF en la pantalla
+    gifHandler.displayGif();
 
     delay(5000);
 
