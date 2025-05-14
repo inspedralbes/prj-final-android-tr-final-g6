@@ -26,6 +26,10 @@ bool apActive = false;
 char dateTime[20];
 String apikey;
 
+bool clockDisplayActive = false;
+unsigned long clockDisplayStart = 0;
+unsigned long lastDisplayUpdate = 0;
+
 bool tjpgDrawCallback(int16_t x, int16_t y, uint16_t w, uint16_t h, uint16_t *bitmap)
 {
     if (y >= 64)
@@ -158,7 +162,7 @@ void loop()
     static float lastSoundLevel = 0.0;
     static float lastTemperature = 0.0;
 
-    // Cada 500 ms: tomar una muestra de sonido y temperatura
+    // Toma de muestras cada 500ms
     if (millis() - lastSampleTime >= 500)
     {
         lastSampleTime = millis();
@@ -173,15 +177,14 @@ void loop()
             sampleCount++;
         }
 
-        // Guardar última lectura para enviar cada segundo
         lastTemperature = temp;
         lastSoundLevel = sound;
 
         Serial.printf("Muestra %d -> Temp: %.2f °C, Sonido: %.2f dB\n", sampleCount, temp, sound);
     }
 
-    // Cada 5 segundos: calcular medias y actualizar el emoji
-    if (millis() - lastEmojiUpdateTime >= 5000)
+    // Solo cambia emoji si el reloj no está activo
+    if (!clockDisplayActive && millis() - lastEmojiUpdateTime >= 5000)
     {
         lastEmojiUpdateTime = millis();
 
@@ -199,11 +202,11 @@ void loop()
 
             Serial.printf("Media Temp: %.2f °C | Media Sonido: %.2f dB\n", avgTemp, avgSound);
             emojis::changeEmoji(avgSound);
-            sampleCount = 0; // Reiniciar para el siguiente ciclo de 5s
+            sampleCount = 0;
         }
     }
 
-    // Cada 1 segundo: envío de datos
+    // Envío de datos cada segundo
     if (millis() - lastRequestTime >= 1000)
     {
         lastRequestTime = millis();
@@ -232,5 +235,64 @@ void loop()
         }
 
         connection::postSensorData(apikey, lastSoundLevel, lastTemperature, humitat, dateTime, wifi::getMacAddress());
+    }
+
+    // Mostrar el reloj cada minuto durante 5 segundos
+    if (!clockDisplayActive && millis() - lastDisplayUpdate >= 1000 * 60)
+    {
+        lastDisplayUpdate = millis();
+        clockDisplayActive = true;
+        clockDisplayStart = millis();
+
+        Serial.println("Mostrando reloj...");
+
+        float temp = temperature::readTemperatureSensor();
+        float humitat = humidity::readHumidity();
+
+        struct tm timeinfo;
+        if (!getLocalTime(&timeinfo))
+        {
+            Serial.println("Error obtenint la data i hora actual.");
+            return;
+        }
+
+        char timeStr[10];
+        strftime(timeStr, sizeof(timeStr), "%H:%M", &timeinfo);
+
+        dma_display->clearScreen();
+
+        dma_display->fillRect(0, 0, 64, 16, dma_display->color565(0, 0, 50));
+        dma_display->fillRect(0, 16, 64, 16, dma_display->color565(50, 0, 0));
+        dma_display->fillRect(0, 32, 64, 16, dma_display->color565(0, 50, 0));
+        dma_display->fillRect(0, 48, 64, 16, dma_display->color565(30, 30, 0));
+
+        dma_display->setTextColor(dma_display->color565(255, 255, 255));
+        dma_display->setTextSize(2);
+        dma_display->setCursor(4, 2);
+        dma_display->print(timeStr);
+
+        dma_display->setTextSize(1);
+        dma_display->setCursor(8, 18);
+        dma_display->print("T:");
+        dma_display->setCursor(24, 18);
+        dma_display->printf("%.1fC", temp);
+
+        dma_display->setCursor(8, 34);
+        dma_display->print("H:");
+        dma_display->setCursor(24, 34);
+        dma_display->printf("%.1f%%", humitat);
+
+        char dateStr[12];
+        strftime(dateStr, sizeof(dateStr), "%d/%m/%Y", &timeinfo);
+        dma_display->setCursor(4, 50);
+        dma_display->print(dateStr);
+    }
+
+    // Ocultar reloj tras 5 segundos
+    if (clockDisplayActive && millis() - clockDisplayStart >= 5000)
+    {
+        Serial.println("Fin de visualización del reloj.");
+        clockDisplayActive = false;
+        dma_display->clearScreen(); // O dejar para que el emoji siguiente se dibuje
     }
 }
