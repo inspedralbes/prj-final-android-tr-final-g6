@@ -169,12 +169,30 @@ void loop()
 
         float temp = temperature::readTemperatureSensor();
         float sound = sound::readSoundDataInDecibels();
-
-        if (sampleCount < maxSamples)
+        if (sampleCount == 0)
+        {
+            for (int i = 0; i < maxSamples; i++)
+            {
+            tempSamples[i] = temp;
+            soundSamples[i] = sound;
+            }
+            sampleCount = maxSamples;
+        }
+        else if (sampleCount < maxSamples)
         {
             tempSamples[sampleCount] = temp;
             soundSamples[sampleCount] = sound;
             sampleCount++;
+        }
+        else
+        {
+            for (int i = 1; i < maxSamples; i++)
+            {
+            tempSamples[i - 1] = tempSamples[i];
+            soundSamples[i - 1] = soundSamples[i];
+            }
+            tempSamples[maxSamples - 1] = temp;
+            soundSamples[maxSamples - 1] = sound;
         }
 
         lastTemperature = temp;
@@ -184,26 +202,25 @@ void loop()
     }
 
     // Solo cambia emoji si el reloj no está activo
-    if (!clockDisplayActive && millis() - lastEmojiUpdateTime >= 5000)
+    if (!clockDisplayActive && millis() - lastEmojiUpdateTime >= 1000)
     {
         lastEmojiUpdateTime = millis();
 
-        if (sampleCount > 0)
-        {
-            float avgSound = 0.0;
-            float avgTemp = 0.0;
-            for (int i = 0; i < sampleCount; i++)
-            {
-                avgSound += soundSamples[i];
-                avgTemp += tempSamples[i];
-            }
-            avgSound /= sampleCount;
-            avgTemp /= sampleCount;
+        float totalSound = 0.0;
+        float totalTemp = 0.0;
 
-            Serial.printf("Media Temp: %.2f °C | Media Sonido: %.2f dB\n", avgTemp, avgSound);
-            emojis::changeEmoji(avgSound);
-            sampleCount = 0;
+        for (int i = 0; i < maxSamples; i++)
+        {
+            totalSound += soundSamples[i];
+            totalTemp += tempSamples[i];
+            Serial.printf("Muestra %d -> Temp: %.2f °C, Sonido: %.2f dB\n", i + 1, tempSamples[i], soundSamples[i]);
         }
+
+        float avgSound = totalSound / maxSamples;
+        float avgTemp = totalTemp / maxSamples;
+
+        Serial.printf("Media Temp: %.2f °C | Media Sonido: %.2f dB\n", avgTemp, avgSound);
+        emojis::changeEmoji(avgSound);
     }
 
     // Envío de datos cada segundo

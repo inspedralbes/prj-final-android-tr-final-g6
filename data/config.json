@@ -13,6 +13,8 @@
 
     "vref_sound": 0.7,
 
+    "maxSamples":10,
+
     "url_newsensor": "https://dev.acubox.cat/back/api/newsensors",
     "url_sensor": "https://dev.acubox.cat/back/api/sendMessage",
 

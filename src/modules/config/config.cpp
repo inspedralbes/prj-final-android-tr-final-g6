@@ -28,6 +28,7 @@ namespace config {
     };
     String url_newsensor = "";
     String url_sensor = "";
+    int maxSamples = 10;
 
 
     void cargarConfig() {
@@ -74,6 +75,7 @@ namespace config {
         url_newsensor = doc["url_newsensor"] | url_newsensor;
         url_sensor = doc["url_sensor"] | url_sensor;
         vref_sound = doc["vref_sound"] | vref_sound;
+        maxSamples = doc["maxSamples"] | maxSamples;
 
         JsonArray niveles = doc["glowlevels"];
         if (niveles && niveles.size() <= 5) {
@@ -113,6 +115,7 @@ namespace config {
         Serial.println("URL Sensor: " + url_sensor);
         Serial.println("WiFi SSID: " + wifiSSID);
         Serial.println("WiFi Password: " + wifiPassword);
+        Serial.println("Max Samples: " + String(maxSamples));
 
         Serial.print("Niveles de brillo: ");
         for (int i = 0; i < numNiveles; i++) {
