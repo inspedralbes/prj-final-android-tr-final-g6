@@ -48,13 +48,13 @@ namespace ldr {
     Serial.printf("Ruta completa: %s\n", fullPath.c_str());
     if (!SPIFFS.exists(fullPath))
     {
-        Serial.println("El archivo no existe.");
+        Serial.println("El arxiu no existeix.");
         return;
     }
     File file = SPIFFS.open(fullPath, "r");
     if (!file)
     {
-        Serial.println("No se pudo abrir el archivo.");
+        Serial.println("No s'ha pogut obrir el fitxer.");
         return;
     }
     TJpgDec.drawFsJpg(0, 0, fullPath.c_str());

@@ -9,19 +9,19 @@ namespace connection
 
     String postNewSensor(String value)
     {
-        Serial.println("Iniciando postNewSensor...");
+        Serial.println("Iniciant postNewSensor...");
         WiFiClientSecure client;
         client.setInsecure();
 
         HTTPClient http;
         if (http.begin(client, config::url_newsensor))
         {
-            Serial.println("Conexión al servidor exitosa para postNewSensor.");
+            Serial.println("Connexió al servidor exitosa per a postNewSensor.");
             http.addHeader("Content-Type", "application/json");
 
-            // Construye el JSON con la clave y el valor
+            // Construeix el JSON amb la clau i el valor
             String payload = "{\"MAC\":\"" + value + "\"}";
-            Serial.print("Payload enviado: ");
+            Serial.print("Payload enviat: ");
             Serial.println(payload);
 
             int httpCode = http.POST(payload);
@@ -29,73 +29,71 @@ namespace connection
             if (httpCode > 0)
             {
                 String response = http.getString();
-                Serial.printf("POST OK, Código HTTP: %d\n", httpCode);
-                Serial.print("Respuesta del servidor: ");
+                Serial.printf("POST OK, Codi HTTP: %d\n", httpCode);
+                Serial.print("Resposta del servidor: ");
                 Serial.println(response);
 
                 http.end();
 
-                // Analizar JSON con ArduinoJson
+                // Analitzar JSON amb ArduinoJson
                 StaticJsonDocument<512> doc;
                 DeserializationError error = deserializeJson(doc, response);
 
                 if (error)
                 {
-                    Serial.print("Error al analizar JSON: ");
+                    Serial.print("Error en analitzar JSON: ");
                     Serial.println(error.c_str());
-                    return "";
+                    return "EXAMPLE";
                 }
 
-                // Obtener la API Key
-                Serial.println("Extrayendo apiKey...");
+                // Obtenir l'API Key
+                Serial.println("Extraient apiKey...");
                 const char *apiKey = doc["apiKey"];
                 if (apiKey)
                 {
-                    Serial.print("API Key extraída: ");
+                    Serial.print("API Key extreta: ");
                     Serial.println(apiKey);
                     return String(apiKey);
                 }
                 else
                 {
-                    Serial.println("No se encontró 'apiKey' en la respuesta.");
-                    return "";
+                    Serial.println("No s'ha trobat 'apiKey' a la resposta.");
+                    return "EXAMPLE";
                 }
             }
             else
             {
                 Serial.printf("Error en POST: %s\n", http.errorToString(httpCode).c_str());
                 http.end();
-                return "";
+                return "EXAMPLE";
             }
         }
         else
         {
-            Serial.println("No se pudo conectar al servidor en postNewSensor.");
-            return "";
+            Serial.println("No s'ha pogut connectar al servidor en postNewSensor.");
+                return "EXAMPLE";
         }
     }
 
     String postSensorData(String apikey, int volume, int temperature, int humidity, String dateTime, String MAC)
     {
-        Serial.println("Iniciando postSensorData...");
+        Serial.println("Iniciant postSensorData...");
         WiFiClientSecure client;
         client.setInsecure();
 
         HTTPClient http;
-        // Serial.println("Conectando al servidor...");
         Serial.println(config::url_sensor);
         if (http.begin(client, config::url_sensor))
         {
-            // Serial.println("Conexión al servidor exitosa para postSensorData.");
             http.addHeader("Content-Type", "application/json");
 
-            // Arma el JSON con los datos del sensor
+            // Construeix el JSON amb les dades del sensor
             String payload = "{\"api_key\":\"" + apikey + "\",\"volume\":" + String(volume) +
                              ",\"temperature\":" + String(temperature) +
                              ",\"humidity\":" + String(humidity) +
                              ",\"date\":\"" + dateTime + "\"" +
                              ",\"MAC\":\"" + MAC + "\"}";
-            Serial.print("Payload enviado: ");
+            Serial.print("Payload enviat: ");
             Serial.println(payload);
 
             int httpCode = http.POST(payload);
@@ -103,44 +101,40 @@ namespace connection
             if (httpCode > 0)
             {
                 String response = http.getString();
-                // Serial.printf("POST OK, Código HTTP: %d\n", httpCode);
-                // Serial.print("Respuesta del servidor: ");
-                // Serial.println(response);
 
-                // Analizar JSON con ArduinoJson
+                // Analitzar JSON amb ArduinoJson
                 StaticJsonDocument<512> doc;
                 DeserializationError error = deserializeJson(doc, response);
 
                 if (error)
                 {
-                    Serial.print("Error al analizar JSON: ");
+                    Serial.print("Error en analitzar JSON: ");
                     Serial.println(error.c_str());
                     return "";
                 }
 
-                // Comparar la fecha del JSON con la fecha del config.json
+                // Comparar la data del JSON amb la data del config.json
                 const char *responseDate = doc["date"];
                 if (responseDate)
                 {
-                    // Serial.print("Fecha recibida del servidor: ");
                     Serial.println(responseDate);
 
                     if (String(responseDate) > config::date)
                     {
-                        Serial.println("La fecha recibida es más reciente que la del config.json.");
-                        Serial.println("Actualizando fecha en config.json...");
+                        Serial.println("La data rebuda és més recent que la del config.json.");
+                        Serial.println("Actualitzant data al config.json...");
                         download::downloadConfig();
                         config::cargarConfig();
                         download::downloadImages();
                     }
                     else
                     {
-                        Serial.println("La fecha recibida es más antigua que la del config.json.");
+                        Serial.println("La data rebuda és més antiga que la del config.json.");
                     }
                 }
                 else
                 {
-                    Serial.println("No se encontró 'date' en la respuesta.");
+                    Serial.println("No s'ha trobat 'date' a la resposta.");
                 }
                 
                 http.end();
@@ -149,7 +143,7 @@ namespace connection
             else
             {
                 Serial.printf("Error en POST: %s\n", http.errorToString(httpCode).c_str());
-                Serial.println("Intentando registrar nuevo sensor...");
+                Serial.println("Intentant registrar un nou sensor...");
                 connection::postNewSensor(MAC);
                 http.end();
                 return "";
@@ -157,7 +151,7 @@ namespace connection
         }
         else
         {
-            Serial.println("No se pudo conectar al servidor en postSensorData.");
+            Serial.println("No s'ha pogut connectar al servidor en postSensorData.");
             return "";
         }
     }

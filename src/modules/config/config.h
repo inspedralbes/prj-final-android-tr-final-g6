@@ -22,8 +22,7 @@ namespace config {
     extern String url_newsensor;
     extern String url_sensor;
     extern float vref_sound;
-    
-    // Función para cargar config desde JSON
+
     void cargarConfig();
     void cargarWifi();
 

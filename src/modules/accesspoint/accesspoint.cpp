@@ -6,30 +6,30 @@
 
 namespace accesspoint
 {
-    WebServer server(80); // mejor puerto 80 para AP local
+    WebServer server(80); // millor port 80 per a AP local
 
     void saveWiFiConfig(const String& ssid, const String& password) {
-        Serial.println("Guardando configuración WiFi a wifi.json...");
+        Serial.println("Guardant configuració WiFi a wifi.json...");
         StaticJsonDocument<256> jsonDoc;
         jsonDoc["ssid"] = ssid;
         jsonDoc["password"] = password;
-        Serial.println("ssid");
+        Serial.println("SSID:");
         Serial.println(ssid);
-        Serial.println("password");
+        Serial.println("Contrasenya:");
         Serial.println(password);
         File configFile = SPIFFS.open("/wifi.json", "w");
         if (configFile) {
             configFile.print("{\"wifi_ssid\":\"" + ssid + "\",\"wifi_password\":\"" + password + "\"}");
             configFile.close();
         } else {
-            Serial.println("Error abriendo wifi.json para escribir");
+            Serial.println("Error obrint wifi.json per escriure.");
         }
     }
 
     void handleRoot() {
         File file = SPIFFS.open("/index.html", "r");
         if (!file) {
-            server.send(500, "text/plain", "Error: no se encontró index.html");
+            server.send(500, "text/plain", "Error: no s'ha trobat index.html");
             return;
         }
 
@@ -43,35 +43,35 @@ namespace accesspoint
             String ssid = server.arg("ssid");
             String password = server.arg("password");
             saveWiFiConfig(ssid, password);
-            server.send(200, "text/plain", "Configuración guardada. Reinicia para aplicar.");
+            server.send(200, "text/plain", "Configuració guardada. Reinicia per aplicar.");
         } else {
-            server.send(400, "text/plain", "Faltan SSID o password.");
+            server.send(400, "text/plain", "Falten SSID o contrasenya.");
         }
     }
 
     void handleRestart() {
-        server.send(200, "text/plain", "Reiniciando...");
+        server.send(200, "text/plain", "Reiniciant...");
         delay(1000);
         ESP.restart();
     }
 
     void setupAccessPoint() {
-        Serial.println("Iniciando punto de acceso...");
+        Serial.println("Iniciant punt d'accés...");
         if (WiFi.softAP("SENSORCILLO", "Jupiter1")) {
-            Serial.println("Punto de acceso iniciado correctamente.");
+            Serial.println("Punt d'accés iniciat correctament.");
         } else {
-            Serial.println("Error al iniciar el punto de acceso.");
+            Serial.println("Error en iniciar el punt d'accés.");
         }
 
         IPAddress IP = WiFi.softAPIP();
-        Serial.print("AP IP: ");
+        Serial.print("IP del punt d'accés: ");
         Serial.println(IP.toString());
 
         server.on("/", handleRoot);
         server.on("/save", HTTP_POST, handleSave);
         server.on("/restart", HTTP_POST, handleRestart);
         server.begin();
-        Serial.println("Servidor web iniciado.");
+        Serial.println("Servidor web iniciat.");
     }
 
     void loopAccessPoint() {

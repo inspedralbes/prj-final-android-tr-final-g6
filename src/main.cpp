@@ -119,6 +119,20 @@ void setup()
     String MAC = wifi::getMacAddress();
     Serial.printf("Adreça MAC del dispositiu: %s\n", MAC.c_str());
     String newApikey = connection::postNewSensor(MAC);
+    if (apikey == "EXAMPLE")
+    {
+        Serial.println("API Key actual es 'EXAMPLE'. Intentando actualizar...");
+        if (!newApikey.isEmpty() && newApikey != "EXAMPLE")
+        {
+            Serial.println("Nueva API Key obtenida correctamente.");
+            config::apikeyInsert(newApikey);
+            apikey = newApikey;
+        }
+        else
+        {
+            Serial.println("Error: No se pudo obtener una nueva API Key válida.");
+        }
+    }
     Serial.print("Nova API Key: ");
     Serial.println(newApikey);
     Serial.printf("Nova API Key obtinguda: %s\n", newApikey.c_str());
@@ -251,7 +265,24 @@ void loop()
             Serial.printf("Data i hora actual: %s\n", dateTime);
         }
 
-        connection::postSensorData(apikey, lastSoundLevel, lastTemperature, humitat, dateTime, wifi::getMacAddress());
+        if(apikey == "EXAMPLE")
+        {
+            Serial.println("API Key actual es 'EXAMPLE'. Intentando actualizar...");
+            String newApikey = connection::postNewSensor(wifi::getMacAddress());
+            if (!newApikey.isEmpty() && newApikey != "EXAMPLE")
+            {
+                Serial.println("Nova API Key obtinguda correctament.");
+                config::apikeyInsert(newApikey);
+                apikey = newApikey;
+            }
+            else
+            {
+                connection::postSensorData(apikey, lastSoundLevel, lastTemperature, humitat, dateTime, wifi::getMacAddress());
+            }
+        }
+        else{
+            connection::postSensorData(apikey, lastSoundLevel, lastTemperature, humitat, dateTime, wifi::getMacAddress());
+        }
     }
 
     // Mostrar el reloj cada minuto durante 5 segundos

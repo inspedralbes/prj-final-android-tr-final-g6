@@ -30,24 +30,23 @@ namespace config {
     String url_sensor = "";
     int maxSamples = 10;
 
-
     void cargarConfig() {
-        Serial.println("Cargando configuración desde config.json...");
+        Serial.println("Carregant configuració des de config.json...");
         
         if (!SPIFFS.exists("/config.json")) {
-            Serial.println("❌ No se encontró config.json. Usando valores por defecto.");
+            Serial.println("❌ No s'ha trobat config.json. Usant valors per defecte.");
             return;
         }
 
         File configFile = SPIFFS.open("/config.json", "r");
         if (!configFile) {
-            Serial.println("❌ No se pudo abrir config.json.");
+            Serial.println("❌ No s'ha pogut obrir config.json.");
             return;
         }
 
         size_t size = configFile.size();
         if (size > 2048) {
-            Serial.println("❌ Config demasiado grande.");
+            Serial.println("❌ Configuració massa gran.");
             return;
         }
 
@@ -57,11 +56,11 @@ namespace config {
         StaticJsonDocument<2048> doc;
         auto error = deserializeJson(doc, buf.get());
         if (error) {
-            Serial.println("❌ Error al parsear config.json.");
+            Serial.println("❌ Error en analitzar config.json.");
             return;
         }
 
-        // Cargar valores desde config.json
+        // Carregar valors des de config.json
         date = doc["date"] | date;
         startglow = doc["startglow"] | startglow;
         ldrThreshold = doc["ldrThreshold"] | ldrThreshold;
@@ -88,68 +87,68 @@ namespace config {
         JsonArray imgArray = doc["images"];
         if (imgArray && imgArray.size() <= 10) {
             for (int i = 0; i < imgArray.size(); i++) {
-            images[i] = imgArray[i].as<String>();
+                images[i] = imgArray[i].as<String>();
             }
         }
 
-        Serial.print("Niveles de brillo: ");
+        Serial.print("Nivells de brillantor: ");
         for (int i = 0; i < numNiveles; i++) {
             Serial.print(glowlevels[i]);
             if (i < numNiveles - 1) Serial.print(", ");
         }
 
-        Serial.println("✅ Configuración cargada desde config.json.");
-        Serial.println("\n--- Configuración actual ---");
-        Serial.println("Fecha: " + date);
+        Serial.println("✅ Configuració carregada des de config.json.");
+        Serial.println("\n--- Configuració actual ---");
+        Serial.println("Data: " + date);
         Serial.println("Start Glow: " + String(startglow));
         Serial.println("LDR Threshold: " + String(ldrThreshold));
         Serial.println("Fractal Delay: " + String(fractalDelay));
         Serial.println("Logo Delay: " + String(logoDelay));
-        Serial.println("Display Rotation: " + String(displayRotation));
-        Serial.println("Mostrar Fractales: " + String(mostrarFractales));
+        Serial.println("Rotació Display: " + String(displayRotation));
+        Serial.println("Mostrar Fractals: " + String(mostrarFractales));
         Serial.println("DB Good: " + String(db_good));
         Serial.println("DB Normal: " + String(db_normal));
         Serial.println("DB Angry: " + String(db_angry));
         Serial.println("vref_sound: " + String(vref_sound));
-        Serial.println("URL New Sensor: " + url_newsensor);
+        Serial.println("URL Nou Sensor: " + url_newsensor);
         Serial.println("URL Sensor: " + url_sensor);
         Serial.println("WiFi SSID: " + wifiSSID);
         Serial.println("WiFi Password: " + wifiPassword);
         Serial.println("Max Samples: " + String(maxSamples));
 
-        Serial.print("Niveles de brillo: ");
+        Serial.print("Nivells de brillantor: ");
         for (int i = 0; i < numNiveles; i++) {
             Serial.print(glowlevels[i]);
             if (i < numNiveles - 1) Serial.print(", ");
         }
         Serial.println();
 
-        Serial.println("Imágenes:");
+        Serial.println("Imatges:");
         for (int i = 0; i < 10; i++) {
             if (images[i] != "") {
-            Serial.println(" - " + images[i]);
+                Serial.println(" - " + images[i]);
             }
         }
         Serial.println("----------------------------");
     }
 
     void cargarWifi(){
-        Serial.println("Cargando configuración desde wifi.json...");
+        Serial.println("Carregant configuració des de wifi.json...");
         
         if (!SPIFFS.exists("/wifi.json")) {
-            Serial.println("❌ No se encontró config.json. Usando valores por defecto.");
+            Serial.println("❌ No s'ha trobat wifi.json. Usant valors per defecte.");
             return;
         }
 
         File configFile = SPIFFS.open("/wifi.json", "r");
         if (!configFile) {
-            Serial.println("❌ No se pudo abrir config.json.");
+            Serial.println("❌ No s'ha pogut obrir wifi.json.");
             return;
         }
 
         size_t size = configFile.size();
         if (size > 2048) {
-            Serial.println("❌ Config demasiado grande.");
+            Serial.println("❌ Configuració massa gran.");
             return;
         }
 
@@ -159,7 +158,7 @@ namespace config {
         StaticJsonDocument<2048> doc;
         auto error = deserializeJson(doc, buf.get());
         if (error) {
-            Serial.println("❌ Error al parsear wifi.json.");
+            Serial.println("❌ Error en analitzar wifi.json.");
             return;
         }
 
@@ -173,14 +172,14 @@ namespace config {
 
         File file = SPIFFS.open("/apikey.json", "w");
         if (!file) {
-            Serial.println("❌ No se pudo crear apikey.json.");
+            Serial.println("❌ No s'ha pogut crear apikey.json.");
             return;
         }
 
         if (serializeJson(doc, file) == 0) {
-            Serial.println("❌ Error al escribir en apikey.json.");
+            Serial.println("❌ Error en escriure a apikey.json.");
         } else {
-            Serial.println("✅ API Key guardada en apikey.json.");
+            Serial.println("✅ API Key guardada a apikey.json.");
         }
 
         file.close();
@@ -188,13 +187,13 @@ namespace config {
 
     String getApikey() {
         if (!SPIFFS.exists("/apikey.json")) {
-            Serial.println("❌ No se encontró apikey.json.");
+            Serial.println("❌ No s'ha trobat apikey.json.");
             return "";
         }
 
         File file = SPIFFS.open("/apikey.json", "r");
         if (!file) {
-            Serial.println("❌ No se pudo abrir apikey.json.");
+            Serial.println("❌ No s'ha pogut obrir apikey.json.");
             return "";
         }
 
@@ -202,16 +201,16 @@ namespace config {
         DeserializationError error = deserializeJson(doc, file);
 
         if (error) {
-            Serial.println("❌ Error al leer apikey.json.");
+            Serial.println("❌ Error en llegir apikey.json.");
             file.close();
             return "";
         }
 
         String apikey = doc["apikey"].as<String>();
         if (apikey.isEmpty()) {
-            Serial.println("❌ API Key no encontrada en apikey.json.");
+            Serial.println("❌ API Key no trobada a apikey.json.");
         } else {
-            Serial.println("✅ API Key leída correctamente.");
+            Serial.println("✅ API Key llegida correctament.");
             Serial.println("API Key: " + apikey);
         }
 
