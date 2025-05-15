@@ -1,22 +1,16 @@
-### Project Name: HUB75-LED-Matrix-Demos | ESP32/ESP8266 & P3-64x64
-## Description:
-A PlatformIO project demonstrating core functionalities for driving a 64x64 HUB75 LED matrix (P3 panel). Key objectives:
+# Acoubox
 
-🎮 HUB75 Protocol Implementation: Control LED matrices via the HUB75 communication bus for dynamic visual outputs.
+## Nom dels integrants
+- Xavier Mateu Martínez
+- Martí Clavé
+- Fabián Roldán
+- Climent Fernández
 
-📁 SPIFFS Filesystem Integration: Store and render JPG images directly from SPIFFS storage (ideal for ESP32/ESP8266 projects).
+## Nom del projecte
+**Acoubox**
 
-🌀 Fractal Visualization: Render Mandelbrot set examples with real-time calculations, showcasing mathematical graphics on the LED matrix.
+## Petita descripció
+Aquest projecte planteja el desenvolupament d’un dispositiu capaç de recopilar dades relacionades amb l’acústica, els nivells de diòxid de carboni (CO₂) i el volum de les aules d’un institut. La informació recollida es processarà per generar gràfics que facilitin l’anàlisi de les condicions ambientals i acústiques dels espais educatius. L’objectiu és proporcionar eines visuals per avaluar i optimitzar el confort i la sostenibilitat a les aules, promovent entorns d’aprenentatge més saludables. La iniciativa combina l’ús de sensors avançats, l’anàlisi de dades i la visualització gràfica per a una gestió eficient dels recursos educatius.
 
-Key Features:
-✅ HUB75 driver integration for LED matrix control
-✅ JPG image handling via SPIFFS storage
-✅ Mandelbrot fractal generation with customizable parameters
-✅ PlatformIO-ready structure for easy compilation/flashing
-✅ Example code and wiring diagrams
-
-
-Bon inici del projecte "SEMÀFOR INTEL·LIGENT PER A LA GESTIÓ DEL SOROLL EN AULES"
-Espero que amb això es podrà començar a fer vía.
-Dídac P.C
-dperez@inspedralbes.cat
+## Adreça del gestor de tasques
+[Taiga](https://tree.taiga.io/project/fabian03-tr-final/backlog)
