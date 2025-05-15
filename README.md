@@ -1,4 +1,4 @@
-# Acoubox
+# Acoubox Sensor
 
 ## Nom dels integrants
 - Xavier Mateu Martínez
@@ -10,7 +10,38 @@
 **Acoubox**
 
 ## Petita descripció
-Aquest projecte planteja el desenvolupament d’un dispositiu capaç de recopilar dades relacionades amb l’acústica, els nivells de diòxid de carboni (CO₂) i el volum de les aules d’un institut. La informació recollida es processarà per generar gràfics que facilitin l’anàlisi de les condicions ambientals i acústiques dels espais educatius. L’objectiu és proporcionar eines visuals per avaluar i optimitzar el confort i la sostenibilitat a les aules, promovent entorns d’aprenentatge més saludables. La iniciativa combina l’ús de sensors avançats, l’anàlisi de dades i la visualització gràfica per a una gestió eficient dels recursos educatius.
+Aquest projecte planteja el desenvolupament d’un dispositiu capaç de recopilar dades relacionades amb l’acústica, els nivells de humitat i el volum de les aules d’un institut. La informació recollida es processarà per generar gràfics que facilitin l’anàlisi de les condicions ambientals i acústiques dels espais educatius. L’objectiu és proporcionar eines visuals per avaluar i optimitzar el confort i la sostenibilitat a les aules, promovent entorns d’aprenentatge més saludables. La iniciativa combina l’ús de sensors avançats, l’anàlisi de dades i la visualització gràfica per a una gestió eficient dels recursos educatius.
 
+## Característiques principals
+- **Sensors utilitzats**: acústica, humitat i volum.
+- **Plataforma de maquinari**: ESP32.
+- **Processament de dades**: Generació de gràfics per a l'anàlisi.
+- **Objectiu**: Millorar el confort i la sostenibilitat en espais educatius.
+
+## Requisits del projecte
+- **Hardware**:
+  - ESP32
+  - Sensors d'humitat, acústica i volum
+- **Software**:
+  - [PlatformIO](https://platformio.org/) per a la gestió del projecte
+  - Llibreries utilitzades:
+
+    - **NTPClient** (versió 3.2.1): Llibreria per gestionar el protocol de temps de xarxa (NTP).  
+        [Enllaç a la llibreria](https://platformio.org/lib/show/551/NTPClient)
+
+    - **TJpg_Decoder** (versió 1.1.0): Llibreria per a la decodificació de fitxers JPEG en pantalles gràfiques.  
+        [Enllaç a la llibreria](https://platformio.org/lib/show/6593/TJpg_Decoder)
+
+    - **ArduinoJson** (versió 7.4.1): Llibreria per treballar amb dades JSON de manera eficient.  
+        [Enllaç a la llibreria](https://platformio.org/lib/show/64/ArduinoJson)
+
+    - **AnimatedGIF** (versió 2.2.0): Llibreria per renderitzar fitxers GIF animats en pantalles gràfiques.  
+        [Enllaç a la llibreria](https://platformio.org/lib/show/1851/AnimatedGIF)
+
+## Instal·lació
+1. Clona aquest repositori:
+   ```bash
+   git clone <URL-del-repositori>
+```
 ## Adreça del gestor de tasques
 [Taiga](https://tree.taiga.io/project/fabian03-tr-final/backlog)
