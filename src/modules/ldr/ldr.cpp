@@ -7,9 +7,9 @@
 
 namespace ldr {
     const int pinLDR = Pines::LDR;
-    int indiceBrillo = 0;
-    bool cambioDetectado = false;
-    bool esperaCambio = false;
+    int brightness = 0;
+    bool chageDetected = false;
+    bool waitChange = false;
 
     void setup() {
         pinMode(pinLDR, INPUT);
@@ -22,30 +22,29 @@ namespace ldr {
     bool checkChange() {
         int ldrValue = read();
 
-        if (ldrValue == 0 && !cambioDetectado && !esperaCambio) {
-            cambioDetectado = true;
-            esperaCambio = true;
-            indiceBrillo = (indiceBrillo + 1) % config::numNiveles;
+        if (ldrValue == 0 && !chageDetected && !waitChange) {
+            chageDetected = true;
+            waitChange = true;
+            brightness = (brightness + 1) % config::numNiveles;
             return true;
         }
 
         if (ldrValue > config::ldrThreshold) {
-            cambioDetectado = false;
-            esperaCambio = false;
+            chageDetected = false;
+            waitChange = false;
         }
 
         return false;
     }
 
     int getBrightnessLevel() {
-        return config::glowlevels[indiceBrillo];
+        return config::glowlevels[brightness];
     }
 
     void showImage(const char *filename)
 {
     Serial.printf("Mostrant imatge: %s\n", filename);
     String fullPath = String("/images/") + filename;
-    Serial.printf("Ruta completa: %s\n", fullPath.c_str());
     if (!SPIFFS.exists(fullPath))
     {
         Serial.println("El arxiu no existeix.");

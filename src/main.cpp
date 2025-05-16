@@ -133,14 +133,9 @@ void setup()
             Serial.println("Error: No se pudo obtener una nueva API Key válida.");
         }
     }
-    Serial.print("Nova API Key: ");
-    Serial.println(newApikey);
-    Serial.printf("Nova API Key obtinguda: %s\n", newApikey.c_str());
     if (newApikey != apikey)
     {
         Serial.println("API Key canviada.");
-        Serial.printf("API Key antiga: %s\n", apikey.c_str());
-        Serial.printf("API Key nova: %s\n", newApikey.c_str());
         config::apikeyInsert(newApikey);
         apikey = newApikey;
     }
@@ -156,7 +151,7 @@ void loop()
         return;
     }
 
-    // Ajuste de brillo según el LDR
+    // Brillantor del lcd
     if (ldr::checkChange())
     {
         uint8_t brightness = ldr::getBrightnessLevel();
@@ -168,7 +163,7 @@ void loop()
     static unsigned long lastEmojiUpdateTime = 0;
     static unsigned long lastRequestTime = 0;
 
-    static const int maxSamples = 10; // 500 ms * 10 = 5 segundos
+    static const int maxSamples = 10; // 500 ms * 10 = 5 segons
     static float soundSamples[maxSamples];
     static float tempSamples[maxSamples];
     static int sampleCount = 0;
@@ -176,7 +171,7 @@ void loop()
     static float lastSoundLevel = 0.0;
     static float lastTemperature = 0.0;
 
-    // Toma de muestras cada 500ms
+    // Toma mostres cada 500 ms
     if (millis() - lastSampleTime >= 500)
     {
         lastSampleTime = millis();
@@ -211,11 +206,9 @@ void loop()
 
         lastTemperature = temp;
         lastSoundLevel = sound;
-
-        Serial.printf("Muestra %d -> Temp: %.2f °C, Sonido: %.2f dB\n", sampleCount, temp, sound);
     }
 
-    // Solo cambia emoji si el reloj no está activo
+    // Solament canvía l'emoji si no s'està mostrant el rellotge
     if (!clockDisplayActive && millis() - lastEmojiUpdateTime >= 1000)
     {
         lastEmojiUpdateTime = millis();
@@ -227,7 +220,6 @@ void loop()
         {
             totalSound += soundSamples[i];
             totalTemp += tempSamples[i];
-            Serial.printf("Muestra %d -> Temp: %.2f °C, Sonido: %.2f dB\n", i + 1, tempSamples[i], soundSamples[i]);
         }
 
         float avgSound = totalSound / maxSamples;
@@ -237,7 +229,7 @@ void loop()
         emojis::changeEmoji(avgSound);
     }
 
-    // Envío de datos cada segundo
+    // Enviar dades al servidor cada 1 segon
     if (millis() - lastRequestTime >= 1000)
     {
         lastRequestTime = millis();
@@ -285,7 +277,7 @@ void loop()
         }
     }
 
-    // Mostrar el reloj cada minuto durante 5 segundos
+    // Mostrar el rellotge cada minut
     if (!clockDisplayActive && millis() - lastDisplayUpdate >= 1000 * 60)
     {
         lastDisplayUpdate = millis();
@@ -336,7 +328,7 @@ void loop()
         dma_display->print(dateStr);
     }
 
-    // Ocultar reloj tras 5 segundos
+    // Ocultar rellotge després de 5 segons
     if (clockDisplayActive && millis() - clockDisplayStart >= 5000)
     {
         Serial.println("Fin de visualización del reloj.");

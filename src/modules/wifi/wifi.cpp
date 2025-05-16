@@ -8,14 +8,14 @@
 namespace wifi {
 
     bool connectToWiFi() {
-        Serial.print("🔄 Conectando a ");
+        Serial.print("Connectant a Wi-Fi: ");
         Serial.println(config::wifiSSID);
 
         if (config::wifiPassword == "") {
-            Serial.println("🔑 Sin contraseña.");
+            Serial.println("Sense contrasenya.");
             WiFi.begin(config::wifiSSID.c_str());
         } else {
-            Serial.println("🔑 Con contraseña.");
+            Serial.println("Amb contrasenya.");
             WiFi.begin(config::wifiSSID.c_str(), config::wifiPassword.c_str());
         }
 
@@ -28,26 +28,26 @@ namespace wifi {
         }
 
         if (WiFi.status() == WL_CONNECTED) {
-            Serial.println("\n✅ Wi-Fi conectado.");
+            Serial.println("\nWi-Fi connectat.");
             Serial.print("IP: ");
             Serial.println(WiFi.localIP());
             return true;
         } else {
-            Serial.println("\n❌ Falló la conexión Wi-Fi.");
-            Serial.print("Estado de Wi-Fi: ");
+            Serial.println("\nError a la conexión Wi-Fi.");
+            Serial.print("Estat del Wi-Fi: ");
             Serial.println(WiFi.status());
             switch (WiFi.status()) {
                 case WL_NO_SSID_AVAIL:
-                    Serial.println("⚠️ SSID no disponible.");
+                    Serial.println("SSID no disponible.");
                     break;
                 case WL_CONNECT_FAILED:
-                    Serial.println("⚠️ Falló la conexión. Verifica la contraseña.");
+                    Serial.println("Error a la connexió. Verifica la contrasenya.");
                     break;
                 case WL_DISCONNECTED:
-                    Serial.println("⚠️ Wi-Fi desconectado.");
+                    Serial.println("Wi-Fi desconnectat.");
                     break;
                 default:
-                    Serial.println("⚠️ Error desconocido.");
+                    Serial.println("Error desconegut.");
                     break;
             }
             return false;

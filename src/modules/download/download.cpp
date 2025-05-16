@@ -37,11 +37,12 @@ namespace download {
     }
 
     void downloadImages() {
+
+        Serial.printf("Descarregant imatges...\n");
+
         for (const String& image : config::images) {
             String url = image;
             String filename = String("/images/") + url.substring(url.lastIndexOf('/') + 1);
-
-            Serial.printf("Descarregant imatge des de %s\n", url.c_str());
 
             WiFiClientSecure client;
             client.setInsecure();
@@ -59,7 +60,6 @@ namespace download {
 
                     http.writeToStream(&file);
                     file.close();
-                    Serial.printf("Imatge desada: %s\n", filename.c_str());
                 } else {
                     String payload = http.getString();
                     Serial.printf("Error en descarregar la imatge: %s, Codi HTTP: %d, Resposta: %s\n", url.c_str(), httpCode, payload.c_str());

@@ -30,8 +30,6 @@ namespace connection
             {
                 String response = http.getString();
                 Serial.printf("POST OK, Codi HTTP: %d\n", httpCode);
-                Serial.print("Resposta del servidor: ");
-                Serial.println(response);
 
                 http.end();
 
@@ -51,8 +49,6 @@ namespace connection
                 const char *apiKey = doc["apiKey"];
                 if (apiKey)
                 {
-                    Serial.print("API Key extreta: ");
-                    Serial.println(apiKey);
                     return String(apiKey);
                 }
                 else
@@ -93,8 +89,8 @@ namespace connection
                              ",\"humidity\":" + String(humidity) +
                              ",\"date\":\"" + dateTime + "\"" +
                              ",\"MAC\":\"" + MAC + "\"}";
-            Serial.print("Payload enviat: ");
-            Serial.println(payload);
+            
+            Serial.print("Payload enviat.");
 
             int httpCode = http.POST(payload);
 
