@@ -13,7 +13,7 @@
 Aquest projecte planteja el desenvolupament d’un dispositiu capaç de recopilar dades relacionades amb l’acústica, els nivells de humitat i el volum de les aules d’un institut. La informació recollida es processarà per generar gràfics que facilitin l’anàlisi de les condicions ambientals i acústiques dels espais educatius. L’objectiu és proporcionar eines visuals per avaluar i optimitzar el confort i la sostenibilitat a les aules, promovent entorns d’aprenentatge més saludables. La iniciativa combina l’ús de sensors avançats, l’anàlisi de dades i la visualització gràfica per a una gestió eficient dels recursos educatius.
 
 ## Característiques principals
-- **Sensors utilitzats**: acústica, humitat i volum.
+- **Sensors utilitzats**: acústica, humitat i temperatura.
 - **Plataforma de maquinari**: ESP32.
 - **Processament de dades**: Generació de gràfics per a l'anàlisi.
 - **Objectiu**: Millorar el confort i la sostenibilitat en espais educatius.
@@ -21,7 +21,11 @@ Aquest projecte planteja el desenvolupament d’un dispositiu capaç de recopila
 ## Requisits del projecte
 - **Hardware**:
   - ESP32
-  - Sensors d'humitat, acústica i volum
+  - Sensor d'humitat, acústica i volum
+  - Micròfon
+  - Sensor de temperatura
+  - Altaveu
+  - LCD
 - **Software**:
   - [PlatformIO](https://platformio.org/) per a la gestió del projecte
   - Llibreries utilitzades:
@@ -37,11 +41,3 @@ Aquest projecte planteja el desenvolupament d’un dispositiu capaç de recopila
 
     - **AnimatedGIF** (versió 2.2.0): Llibreria per renderitzar fitxers GIF animats en pantalles gràfiques.  
         [Enllaç a la llibreria](https://platformio.org/lib/show/1851/AnimatedGIF)
-
-## Instal·lació
-1. Clona aquest repositori:
-   ```bash
-   git clone <URL-del-repositori>
-```
-## Adreça del gestor de tasques
-[Taiga](https://tree.taiga.io/project/fabian03-tr-final/backlog)
