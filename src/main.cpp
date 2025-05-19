@@ -146,21 +146,21 @@ void setup()
 void loop()
 {
 
-    // Comprobar conexión a Internet cada minuto
+    // Wifi check
     static unsigned long lastInternetCheck = 0;
     static bool wasConnected = true;
     if (millis() - lastInternetCheck >= 60000) {
         lastInternetCheck = millis();
         bool nowConnected = wifi::isConnected();
         if (!nowConnected) {
-            Serial.println("No hay conexión a Internet. Intentando reconectar...");
+            Serial.println("No hi ha wifi...");
             connected = wifi::connectToWiFi();
             if (connected) {
-                Serial.println("Reconexión exitosa.");
+                Serial.println("Reconexió exitosa.");
                 ldr::showImage("connected.jpg");
                 delay(2000);
             } else {
-                Serial.println("No se pudo reconectar a Internet.");
+                Serial.println("No s'ha pogut reconectar'.");
             }
         }
         wasConnected = nowConnected;
