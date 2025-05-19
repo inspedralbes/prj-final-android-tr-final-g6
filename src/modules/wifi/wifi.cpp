@@ -20,7 +20,7 @@ namespace wifi {
         }
 
         unsigned long startAttemptTime = millis();
-        const unsigned long timeout = 10000; // 10 segundos
+        const unsigned long timeout = 30000;
 
         while (WiFi.status() != WL_CONNECTED && millis() - startAttemptTime < timeout) {
             delay(500);
@@ -71,5 +71,8 @@ namespace wifi {
                        String(ip[2]) + "." +
                        String(ip[3]);
         return ipStr;
+    }
+    bool isConnected() {
+        return WiFi.status() == WL_CONNECTED;
     }
 }

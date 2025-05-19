@@ -8,4 +8,5 @@ namespace wifi {
     bool connectToWiFi();
     String getMacAddress();
     String getIp();
+    bool isConnected();
 }

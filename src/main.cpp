@@ -145,6 +145,27 @@ void setup()
 
 void loop()
 {
+
+    // Comprobar conexión a Internet cada minuto
+    static unsigned long lastInternetCheck = 0;
+    static bool wasConnected = true;
+    if (millis() - lastInternetCheck >= 60000) {
+        lastInternetCheck = millis();
+        bool nowConnected = wifi::isConnected();
+        if (!nowConnected) {
+            Serial.println("No hay conexión a Internet. Intentando reconectar...");
+            connected = wifi::connectToWiFi();
+            if (connected) {
+                Serial.println("Reconexión exitosa.");
+                ldr::showImage("connected.jpg");
+                delay(2000);
+            } else {
+                Serial.println("No se pudo reconectar a Internet.");
+            }
+        }
+        wasConnected = nowConnected;
+    }
+
     if (apActive)
     {
         accesspoint::loopAccessPoint();
