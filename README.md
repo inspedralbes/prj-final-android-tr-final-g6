@@ -21,9 +21,9 @@ Aquest projecte planteja el desenvolupament d’un dispositiu capaç de recopila
 ## Requisits del projecte
 - **Hardware**:
   - ESP32
-  - Sensor d'humitat, acústica i volum
-  - Micròfon
+  - Sensor d'humitat
   - Sensor de temperatura
+  - Micròfon
   - Altaveu
   - LCD
 - **Software**:
