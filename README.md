@@ -41,3 +41,7 @@ Aquest projecte planteja el desenvolupament d’un dispositiu capaç de recopila
 
     - **AnimatedGIF** (versió 2.2.0): Llibreria per renderitzar fitxers GIF animats en pantalles gràfiques.  
         [Enllaç a la llibreria](https://platformio.org/lib/show/1851/AnimatedGIF)
+
+## Manuals
+  - [Configuració del Wifi](doc/configuracioWifi/README.md)
+  - [Instalació del firmware al ESP32](doc/instalacioESP32/README.md)
