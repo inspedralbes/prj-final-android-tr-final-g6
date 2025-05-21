@@ -266,22 +266,3 @@ El mòdul emojis pot contenir funcionalitats per mostrar o gestionar emojis o ic
 #### Resum Emojis
 
 Permet enriquir la interfície gràfica del dispositiu amb icones o emojis.
-
----
-
-## Estructura general dels fitxers
-
-- **.h**: Defineix les funcions i variables externes del mòdul.
-- **.cpp**: Implementa la lògica de les funcions declarades a la capçalera.
-
-## Recomanacions d'ús
-
-- Consulta aquest document per entendre la funcionalitat de cada mòdul abans de modificar o ampliar el codi.
-- Mantingues la separació de responsabilitats entre mòduls per facilitar el manteniment i la reutilització del codi.
-- Utilitza el sistema de fitxers SPIFFS per a la configuració persistent i la gestió de recursos (fitxers JSON, HTML, etc.).
-
-## Resum general
-
-Aquest projecte està dissenyat per ser modular, flexible i fàcilment configurable. Cada mòdul aporta una funcionalitat concreta i la seva documentació facilita la comprensió i l'extensió del sistema per a futures millores o adaptacions.
-
----

@@ -43,5 +43,5 @@ Aquest projecte planteja el desenvolupament d’un dispositiu capaç de recopila
         [Enllaç a la llibreria](https://platformio.org/lib/show/1851/AnimatedGIF)
 
 ## Manuals
-  - [Configuració del Wifi](doc/configuracioWifi/README.md)
-  - [Instalació del firmware al ESP32](doc/instalacioESP32/README.md)
+  - [Configuració del Wifi](doc/configuracioWifi.md)
+  - [Instalació del firmware al ESP32](doc/instalacioESP32.md)
