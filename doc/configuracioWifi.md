@@ -1,8 +1,4 @@
-# Manual d'Instruccions: Canviar la Configuració WiFi del Dispositiu
-
-Aquest manual explica com canviar la configuració WiFi del dispositiu utilitzant la seva interfície web.
-
----
+# Guia Configuració WiFi del Dispositiu
 
 ## Passos per canviar la configuració WiFi
 
@@ -11,7 +7,6 @@ Aquest manual explica com canviar la configuració WiFi del dispositiu utilitzan
 2. Busca la xarxa WiFi amb el nom (SSID): **SENSORCILLO**.
 3. Connecta't a aquesta xarxa utilitzant la contrasenya: **Jupiter1**.
 
----
 
 ### 2. Obrir la interfície web
 1. Un cop connectat al punt d'accés, obre un navegador web (Chrome, Firefox, etc.).
@@ -19,7 +14,6 @@ Aquest manual explica com canviar la configuració WiFi del dispositiu utilitzan
 http://192.168.4.1
 3. Apareixerà la pàgina principal de configuració del dispositiu.
 
----
 
 ### 3. Introduir les noves credencials WiFi
 1. A la pàgina principal, omple els camps següents:
@@ -27,13 +21,11 @@ http://192.168.4.1
 - **Password**: Introdueix la contrasenya de la xarxa WiFi.
 2. Fes clic al botó **Guardar**.
 
----
 
 ### 4. Reiniciar el dispositiu
 1. Després de guardar la configuració, torneu a la web principal i fes clic al botó **Reiniciar**.
 2. El dispositiu es reiniciarà i intentarà connectar-se a la xarxa WiFi amb les noves credencials.
 
----
 
 ## Resolució de problemes
 - **El dispositiu no es connecta a la xarxa WiFi:**
@@ -45,7 +37,6 @@ http://192.168.4.1
   1. Assegura't que el dispositiu està en mode **Punt d'Accés**.
   2. Reinicia el dispositiu i torna a intentar connectar-te.
 
----
 
 ## Notes addicionals
 - Les credencials WiFi es guarden de manera segura al fitxer `wifi.json` al sistema de fitxers del dispositiu.

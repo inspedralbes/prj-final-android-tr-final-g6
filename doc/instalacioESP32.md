@@ -67,5 +67,5 @@ Observa els missatges al monitor sèrie per verificar que el dispositiu s'ha con
 ### Error en carregar el firmware:
 - Verifica que l'ESP32 està correctament connectat al port USB.
 ### Enllaç a la guia de configuració
-- Per a més informació sobre la configuració del dispositiu, consulta el [README de Configuració](../ConfiguracioWifi/README.md).
+- Per a més informació sobre la configuració del dispositiu, consulta la [Configuració de Wifi](../ConfiguracioWifi/README.md).
 - Si necessites restablir la configuració, pots esborrar el fitxer `wifi.json` i tornar a carregar-lo.
