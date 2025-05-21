@@ -257,12 +257,15 @@ Permet establir la connexió a Internet necessària per a la comunicació amb el
 
 ### 10. Emojis
 
-El mòdul emojis pot contenir funcionalitats per mostrar o gestionar emojis o icones gràfiques al dispositiu.
+El mòdul emojis conté funcionalitats per mostrar o gestionar emojis o icones gràfiques al dispositiu, basant-se en els nivells de so detectats pel sensor.
 
 #### Funcions principals
 
-- (Consultar el codi per a funcionalitats específiques.)
+- **`changeEmoji(float soundLevel)`**: Mostra un emoji diferent a la pantalla LED en funció del nivell de so detectat:
+  - Si el nivell de so és inferior a `config::db_normal`, es mostra l'emoji **"good.jpg"**.
+  - Si el nivell de so està entre `config::db_normal` i `config::db_angry`, es mostra l'emoji **"normal.jpg"**.
+  - Si el nivell de so és superior a `config::db_angry`, es mostra l'emoji **"angry.jpg"**.
 
 #### Resum Emojis
 
-Permet enriquir la interfície gràfica del dispositiu amb icones o emojis.
+Aquest mòdul permet enriquir la interfície gràfica del dispositiu amb icones o emojis que reflecteixen l'estat acústic de l'entorn. Això ajuda a proporcionar un feedback visual immediat basat en les condicions ambientals.
